@@ -1,0 +1,50 @@
+Endpoint for creating a new user
+---
+  tags:
+    - User
+  consumes:
+    - application/json
+  produces:
+    - application/json
+  parameters:
+    - name: body
+      in: body
+      description: Registering a new user
+      required: true
+      schema:
+        $ref: '#/definitions/createUser'
+  definitions:
+    User:
+      type: object
+      properties: 
+        id:
+          type: integer
+          format: int32
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    createUser:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+
+  responses:
+    201:
+      description: User created Successfully
+      schema:
+        $ref: '#/definitions/User'
+      examples:
+        [{
+          "message":"User created Successfully"
+        }]
+    404:
+      description: Failed to create user
+      
