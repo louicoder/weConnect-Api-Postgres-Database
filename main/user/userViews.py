@@ -1,26 +1,17 @@
 from flask import Blueprint, Flask, request, json, jsonify, make_response
-from .userModel import User, USERS
 import jwt
 import datetime
-from functools import wraps
-from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
+from flasgger import swag_from
 
-loggedInUser=[]
 userBlueprint = Blueprint('user', __name__)
 
-SECRETKEY = 'thisISverysecret'
-token = None
 
-@userBlueprint.route('/api/v1/auth/register', methods=['POST'])
+@userBlueprint.route('/api/auth/register', methods=['POST'])
+@swag_from('../swagger/createUser.yml')
 def createuser():
-    pass
-    
 
-@userBlueprint.route('/api/v1/auth/getusers', methods=['GET'])
-@token_required
-def getusers():
-    pass
+    return jsonify({'message':'this is the register route'})
     
 
 @userBlueprint.route('/api/v1/auth/login', methods=['POST'])
@@ -29,12 +20,12 @@ def login():
     
 
 @userBlueprint.route('/api/v1/auth/resetpassword', methods=['POST'])
-@token_required
+# @token_required
 def resetPassword():
     pass
 
 @userBlueprint.route('/api/v1/auth/logout', methods=['PUT'])
-@token_required
+# @token_required
 def logout():    
     pass
 
