@@ -8,7 +8,7 @@ userBlueprint = Blueprint('user', __name__)
 
 
 @userBlueprint.route('/api/auth/register', methods=['POST'])
-@swag_from('../swagger/createUser.yml')
+@swag_from('../swagger//user/createUser.yml')
 def createuser():
 
     return jsonify({'message':'this is the register route'})
