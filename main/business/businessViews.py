@@ -4,9 +4,11 @@ import datetime
 from ..authourization.auth import token_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
+import sys
 
-
-businessBlueprint = Blueprint('business', __name__)
+sys.path.append('..')
+from ..run import businessBlueprint
+# businessBlueprint = Blueprint('business', __name__)
 
 @businessBlueprint.route('/api/businesses', methods=['POST'])
 @swag_from('../swaggerDocs/businessSwagDocs/createBusiness.yml')

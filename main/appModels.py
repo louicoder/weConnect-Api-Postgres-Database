@@ -11,7 +11,7 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(256), nullable=False)
     businesses = db.relationship('Business', backref='user', lazy='dynamic', cascade='all, delete-orphan')
-    reviews = db.relationship('Reviews', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    reviews = db.relationship('Review', backref='user', lazy='dynamic', cascade='all, delete-orphan')
 
     def __init__(self, username, email, password):
         self.username= username
@@ -34,7 +34,7 @@ class Business(db.Model):
     description = db.Column(db.Text, nullable=False)    
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
-    reviews = db.relationship('Reviews', backref='businesses', lazy='dynamic', cascade='all, delete-orphan')
+    reviews = db.relationship('Review', backref='business', lazy='dynamic', cascade='all, delete-orphan')
 
     def __init__(self, userid, bizname, category, description, date_created, date_modified):
         self.bizname = bizname
@@ -62,7 +62,7 @@ class Review(db.Model):
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def __init__(self, id, review, userid, bizid, date_created, date_modified):
+    def __init__(self, review, userid, bizid, date_created, date_modified):
         self.id = id
         self.review = review
         self.userid = userid

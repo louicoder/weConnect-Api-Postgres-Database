@@ -1,9 +1,12 @@
 from functools import wraps
 from flask import Response, request, jsonify, make_response
 import jwt
-from ...appModels import User
-from ...config import Config
-from ...run import app
+import sys
+
+sys.path.append('..')
+from config import Config
+from appModels import User
+from run import app
 
 def token_required(f):
     @wraps(f)
