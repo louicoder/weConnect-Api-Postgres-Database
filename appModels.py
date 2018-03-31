@@ -45,7 +45,7 @@ class Business(db.Model):
         self.date_modified = date_modified        
 
     def __repr__(self):
-        return '<User {}>'.format(self.bizname)
+        return '<Business {}>'.format(self.bizname)
 
     def returnJson(self):
         businessJsonFormat = {'id':self.id, 'userid':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
@@ -71,7 +71,7 @@ class Review(db.Model):
         self.date_modified = date_modified
 
     def __repr__(self):
-        return '<User {}>'.format(self.review)
+        return '<Review {}>'.format(self.review)
 
     def returnJson(self):
         reviewJsonFormat = {'Creator':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
