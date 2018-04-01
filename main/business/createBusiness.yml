@@ -42,7 +42,7 @@ Endpoint for creating a new Business
         date_modified:
           type: string
           format: date-time
-    business-create:
+    createBusiness:
       type: object
       properties:
         name:
