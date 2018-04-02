@@ -1,7 +1,7 @@
 from flask import Blueprint, Flask, request, json, jsonify, make_response
 import jwt
 import datetime
-# from ..authourization.auth import token_required
+from user.userViews import token_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
 import sys
