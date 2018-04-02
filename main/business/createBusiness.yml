@@ -57,15 +57,16 @@ Endpoint for creating a new Business
         description:
           type: string  
           example: "business description"
+
   responses:
     201:
       description: Business created successfully
       schema:
         $ref: '#/definitions/Business'
       examples:
-      [{
-        "Message": "Business successfully created"
-      }]
+        [{
+          "message":"Business successfully created"
+        }]
     404:
       description: Failed to create business
     401:

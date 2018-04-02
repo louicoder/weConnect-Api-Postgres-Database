@@ -1,0 +1,77 @@
+Endpoint returning filtered businesses
+---
+tags:
+  - Business
+parameters:
+  - name: x-access-token
+    in: header
+    type: string
+    description: JWT token authorization
+    required: true
+  - name: filterType
+    in: query
+    description: Choose a filter either location or category
+    required: true
+    type: string
+  - name: filterValue
+    in: query
+    description: Value of your filter
+    required: true
+    type: string
+  - name: page
+    in: query
+    type: integer
+    format: int64
+    description: Page to show
+  - name: limit
+    in: query
+    type: integer
+    format: int64
+    description: Number of businesses to show
+definitions:
+  Business:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      user_id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      location:
+        type: string
+      category:
+        type: string
+      description:
+        type: string
+      date_created:
+        type: string
+        format: date-time
+      date_modified:
+        type: string
+        format: date-time
+      
+responses:
+  200:
+    description: Filtered businesses
+    schema:
+      $ref: '#/definitions/Business'
+    examples:
+      Business: 
+        [{
+          "Created By": "business author", 
+          "Date Created": "Sun, 25 Mar 2018 10:43:31 GMT", 
+          "Last Modified": "Mon, 26 Mar 2018 10:23:28 GMT",       
+          "category": "categoryx", 
+          "description": "businessx description", 
+          "id": 1, 
+          "location": "locationx", 
+          "name": "businessx", 
+          "userid": 1
+        }]
+  404:
+    description: No businesses registered 
+  401:
+    description: Invalid token or User has signed out
