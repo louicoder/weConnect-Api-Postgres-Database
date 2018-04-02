@@ -7,7 +7,6 @@ from flasgger import swag_from
 import sys
 
 sys.path.append('..')
-# from ..run import businessBlueprint
 businessBlueprint = Blueprint('business', __name__)
 
 @businessBlueprint.route('/api/businesses', methods=['POST'])

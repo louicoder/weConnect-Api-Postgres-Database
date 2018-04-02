@@ -9,7 +9,7 @@ sys.path.append('..')
 from appModels import User
 from appModels import Business
 from appModels import Review
-# from config import Config
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 

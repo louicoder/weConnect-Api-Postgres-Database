@@ -1,11 +1,9 @@
 from flask import Blueprint, Flask, request, json, jsonify, make_response
 # from ...authourization.auth import token_required
 from flasgger import swag_from
+from user.userViews import token_required
 import sys
 
-sys.path.append('..')
-# from .authourization.auth import token_required
-# from ..run import reviewBlueprint
 
 reviewBlueprint = Blueprint('reviews', __name__)
 @reviewBlueprint.route('/api/businesses/<string:id>/reviews', methods=['POST'])
