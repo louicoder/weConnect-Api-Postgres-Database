@@ -72,8 +72,8 @@ def login():
         user = User.query.filter_by(username=un, password=pd).first()
         if user:
             loggedInUser['id']=user.id
-            loggedInUser['username']=user.username
-            loggedInUser['password']=user.password
+            loggedInUser['username'] = user.username
+            loggedInUser['password'] = user.password
             return jsonify({'message': 'username and password correct', 'token':token.decode('UTF-8'), 'id':loggedInUser['id']}), 200
         else:
             return make_response(jsonify({'message':'user doesn''t exist in the system'})), 404
@@ -94,14 +94,12 @@ def resetPassword():
     if data['password'] != '':
         newPassword = data['password']
         user = User.query.get(loggedInUser['id'])
-        user.password= newPassword
-        # data['password'] = newPassword
-        db.session.add(user)
-        
+        user.password= newPassword       
+        db.session.add(user)        
         return jsonify({'message':'user password has been successfully reset'})
     else:
         return jsonify({'message': 'Could not reset password because of missing fields'})
-    # return jsonify({'message': 'Could not reset password because of missing fields'})
+   
 
 
 @userBlueprint.route('/api/v1/auth/logout', methods=['POST'])

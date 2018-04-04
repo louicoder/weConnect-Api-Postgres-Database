@@ -45,13 +45,14 @@ class Business(db.Model):
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
     reviews = db.relationship('Review', backref='business', lazy='dynamic', cascade='all, delete-orphan')
 
-    def __init__(self, userid, bizname, category, description, date_created, date_modified):
+    def __init__(self, userid, bizname, location, category, description):
         self.bizname = bizname
         self.userid = userid
+        self.location= location
         self.category = category
         self.description = description
-        self.date_created = date_created
-        self.date_modified = date_modified        
+        # self.date_created = date_created
+        # self.date_modified = date_modified
 
     def __repr__(self):
         return '<Business {}>'.format(self.bizname)

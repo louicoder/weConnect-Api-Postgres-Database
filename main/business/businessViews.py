@@ -1,26 +1,54 @@
 from flask import Blueprint, Flask, request, json, jsonify, make_response
 import jwt
 import datetime
-from user.userViews import token_required
+from user.userViews import token_required, loggedInUser
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
-import sys
+from appModels import Business, db
 
-sys.path.append('..')
+
 businessBlueprint = Blueprint('business', __name__)
 
 @businessBlueprint.route('/api/businesses', methods=['POST'])
 @swag_from('createBusiness.yml')
 # @token_required
 def createBusiness():
-   pass
+    global loggedInUser
+    jsn = request.data
+    data = json.loads(jsn)
+
+    #lets pick the data from json passed
+    bizname = data['name']
+    userid = loggedInUser['id']
+    location =data['location']
+    category = data['category']
+    description = data['description']
+
+    #lets create the business object with data from json but after we check that all fields are passed
+    if not bizname or not userid or not location or not category or not description:
+        return jsonify({'message':'some fields required are missing, please try again'}), 400
+    else:
+        if Business.query.filter_by(bizname=bizname).count() == 0:
+            business = Business(userid, bizname, location, category, description)
+            db.session.add(business)
+            
+            if business:
+                return jsonify({'message':'business has been successfully created'}), 200
+            else:
+                return jsonify({'message':'business was not created, please try again'}), 400
+        else:
+            return jsonify({'message':'business already exists, please try again'})
 
 
-@businessBlueprint.route('/api/businesses/<string:id>', methods=['GET'])
+@businessBlueprint.route('/api/businesses/<int:id>', methods=['GET'])
 @swag_from('retrieveBusiness.yml')
 # @token_required
 def getOneBusiness(id):
-    pass
+    biz = Business.query.get(id)    
+    if biz:
+        return jsonify({'message':biz.returnJson()}), 200
+    else:
+        return jsonify({'message':'no business with id '+ str(id) +' exists'}), 404
     
 
 
@@ -28,21 +56,85 @@ def getOneBusiness(id):
 @swag_from('retrieveAllBusinesses.yml')
 # @token_required
 def getAllBusinesses():
-    pass
+    businesses = Business.query.all()
+    if not businesses:
+        return jsonify({'message':'No businesses exist, please register one'}), 404
+    else:
+        return jsonify({'businesses':[business.returnJson() for business in businesses]}), 200
 
 
-# @businessBlueprint.route('/api/businesses/<string:id>', methods=['PUT'])
-# @swag_from('updateBusiness.yml')
-# # @token_required
-# def updatebusiness(id):
-#     pass
+@businessBlueprint.route('/api/businesses/<int:id>', methods=['PUT'])
+@swag_from('updateBusiness.yml')
+# @token_required
+def updatebusiness(id):
+    global loggedInUser
+    biz = Business.query.get(id)
+    print(biz.id)
+    userid = loggedInUser['id']
+
+    if biz.query.count() > 0:
+        print(loggedInUser)
+        
+        jsn = request.data
+        data = json.loads(jsn)
+
+        if 'name' in data.keys():
+            bizname = data['name']
+        else:
+            bizname = None
+
+        if 'location' in data.keys():
+            location =data['location']
+        else:
+            location = None
+
+        if 'category' in data.keys():
+            category = data['category']
+        else:
+            category = None
+
+        if 'description' in data.keys():
+            description = data['description']
+        else:
+            description = None
+
+        if biz.userid == userid:
+            if bizname:
+                biz.bizname = bizname
+            if location:
+                biz.location = location
+            if category:
+                biz.category = category
+            if description:
+                biz.description = description            
+
+            db.session.add(biz)
+            # if biz:
+        return jsonify({'message':'business '+ str(id) +' has been updated successfully'}), 200
+            # else:
+            #     return jsonify({'message':'business '+ str(id) +' has not been updated'}), 400
+        
+    else:
+        return jsonify({'message':'no business with id '+ str(id) +' exists'}), 404
+    # return jsonify({'message':'no business with id '+ str(id) +' exists'})
 
         
-@businessBlueprint.route('/api/businesses/<string:id>', methods=['DELETE'])
+@businessBlueprint.route('/api/businesses/<int:id>', methods=['DELETE'])
 @swag_from('deleteBusiness.yml')
 # @token_required
 def deletebusiness(id):
-    pass
+    global loggedInUser
+    userid = loggedInUser['id']
+    biz = Business.query.get(id)
+    print(userid == biz.id)
+    if biz:
+        if str(userid) == str(biz.id):
+            db.session.delete(biz)
+            return jsonify({'message':'business was deleted successfully'})
+        else:
+            return jsonify({'message':'business was not deleted because you are not the owner'})
+    else:
+        return jsonify({'message':'no business with that id exists'})
 
 
 @businessBlueprint.route('/api/businesses/search', methods=['GET'])
