@@ -58,7 +58,7 @@ class Business(db.Model):
         return '<Business {}>'.format(self.bizname)
 
     def returnJson(self):
-        businessJsonFormat = {'id':self.id, 'userid':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
+        businessJsonFormat = {'id':self.id, 'name':self.bizname, 'userid':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
         return businessJsonFormat
         
 

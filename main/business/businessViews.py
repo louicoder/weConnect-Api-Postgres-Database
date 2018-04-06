@@ -70,7 +70,11 @@ def updatebusiness(id):
     global loggedInUser
     biz = Business.query.get(id)
     print(biz.id)
-    userid = loggedInUser['id']
+
+    if len(loggedInUser.keys()) != 3:
+        return jsonify({'message':'You are not logged in.'})
+    else:
+        userid = loggedInUser['id']
 
     if biz.query.count() > 0:
         print(loggedInUser)
@@ -96,9 +100,10 @@ def updatebusiness(id):
         if 'description' in data.keys():
             description = data['description']
         else:
-            description = None
+            description = None        
 
-        if biz.userid == userid:
+        if biz.userid == str(userid):
+            
             if bizname:
                 biz.bizname = bizname
             if location:
@@ -107,7 +112,7 @@ def updatebusiness(id):
                 biz.category = category
             if description:
                 biz.description = description            
-
+            print([bizname, location, category, description])
             db.session.add(biz)
             # if biz:
         return jsonify({'message':'business '+ str(id) +' has been updated successfully'}), 200

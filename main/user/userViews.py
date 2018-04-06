@@ -109,11 +109,13 @@ def logout():
     pass
 
 
+
+# for testing purposes only!
 @userBlueprint.route('/api/auth/getusers', methods=['GET'])
 # @token_required
 def getusers():    
     users = User.query.all()    
-    return jsonify({'message':[user.returnJson() for user in users]})
+    return jsonify({'users':[user.returnJson() for user in users]})
 
 
 
