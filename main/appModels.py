@@ -19,7 +19,7 @@ class User(db.Model):
         self.password = password
 
     def __repr__(self):
-        return '<User {}, {}>'.format(self.username, self.email, self.password)
+        return '<User {}, {}>'.format(self.username, self.email)
     
     # @staticmethod
     # def getAllUsers():
@@ -28,7 +28,7 @@ class User(db.Model):
 
     def returnJson(self):
         reviewJsonFormat = {'username':self.username, 'email':self.email, 'id':self.id, 'password':self.password}
-        return reviewJsonFormat    
+        return reviewJsonFormat
         
 
 ############### BUSINESS MODEL #################
@@ -58,7 +58,7 @@ class Business(db.Model):
         return '<Business {}>'.format(self.bizname)
 
     def returnJson(self):
-        businessJsonFormat = {'id':self.id, 'name':self.bizname, 'userid':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
+        businessJsonFormat = {'id':self.id, 'bizName':self.bizname, 'userId':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
         return businessJsonFormat
         
 
@@ -72,19 +72,19 @@ class Review(db.Model):
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def __init__(self, review, userid, bizid, date_created, date_modified):
-        self.id = id
+    def __init__(self, review, userid, bizid):
+        # self.id = id
         self.review = review
         self.userid = userid
         self.bizid = bizid
-        self.date_created= date_created
-        self.date_modified = date_modified
+        # self.date_created= date_created
+        # self.date_modified = date_modified
 
     def __repr__(self):
         return '<Review {}>'.format(self.review)
 
     def returnJson(self):
-        reviewJsonFormat = {'Creator':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
+        reviewJsonFormat = {'id':self.id, 'userid':self.userid, 'bizid':self.bizid, 'Author':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
         return reviewJsonFormat
 
 

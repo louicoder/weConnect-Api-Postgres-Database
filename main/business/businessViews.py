@@ -5,6 +5,7 @@ from user.userViews import token_required, loggedInUser
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
 from appModels import Business, db
+from flask_paginate import Pagination, get_page_args, get_page_parameter
 
 
 businessBlueprint = Blueprint('business', __name__)
@@ -59,8 +60,9 @@ def getAllBusinesses():
     businesses = Business.query.all()
     if not businesses:
         return jsonify({'message':'No businesses exist, please register one'}), 404
-    else:
+    else:        
         return jsonify({'businesses':[business.returnJson() for business in businesses]}), 200
+        
 
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['PUT'])
@@ -114,14 +116,10 @@ def updatebusiness(id):
                 biz.description = description            
             print([bizname, location, category, description])
             db.session.add(biz)
-            # if biz:
         return jsonify({'message':'business '+ str(id) +' has been updated successfully'}), 200
-            # else:
-            #     return jsonify({'message':'business '+ str(id) +' has not been updated'}), 400
         
     else:
         return jsonify({'message':'no business with id '+ str(id) +' exists'}), 404
-    # return jsonify({'message':'no business with id '+ str(id) +' exists'})
 
         
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['DELETE'])
@@ -153,4 +151,25 @@ def searchBusiness():
 @swag_from('filterBusiness.yml')
 # @token_required
 def filterBusiness():
+    pass
+
+def getPaginatedResult(klass, url, start, limit):
+    results = klass.query.all()
+    count = len(results)
+
+    if count < start:
+        return jsonify({'message':'No records Found'}), 404
+
+    obj = {}
+    obj['start'] = start
+    obj['limit'] = limit
+    obj['count'] = count
+
+    if start == 1:
+        obj['previous'] =''
+    
+    if start + limit > count:
+        obj['next'] = ''
+
+    obj['results']
     pass
