@@ -81,9 +81,7 @@ def getAllBusinesses():
             # next = url_for('/api/businesses?page={}&limit={}'.format(page_num, limit), page=page_num+1, _external=True)
             next = url_for('127.0.0.1:5000/api/businesses', page=page_num-1, _external=True)
         return jsonify({'businesses':[business.returnJson() for business in results],'previous':prev, 'next':next}), 200        
-    #     return jsonify({'businesses':json.dumps(item),'previous':prev, 'next':next}), 200
-    # return jsonify({'businesses':get_paginated_list(Business, '/api/businesses/page', start=request.args.get('start', 1), limit=request.args.get('limit', 2))})
-    # return jsonify({'businesses':get_paginated_list(Business, '/api/businesses/page', start=request.args.get('start', 1), limit=request.args.get('limit', 2))})
+        
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['PUT'])
 @swag_from('updateBusiness.yml')
@@ -177,13 +175,13 @@ def searchBusiness():
     elif filter_type == 'category':
         result = Business.query.filter_by(bizname=name, category=filter_value)
     else:
-        return jsonify({'message':'unknown filter type passed in query url'})
+        return jsonify({'message':'unknown filter type passed in query url'}), 400
 
     if result.count() > 0:
         print(result)
         return jsonify({'businesses':[res.returnJson() for res in result]}), 200
     else:
-        return jsonify({'message':'No business matching your search'}), 400    
+        return jsonify({'message':'No businesses match your search'}), 404
 
 
 @businessBlueprint.route('/api/businesses/filter', methods=['GET'])
