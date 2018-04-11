@@ -19,12 +19,7 @@ class User(db.Model):
         self.password = password
 
     def __repr__(self):
-        return '<User {}, {}>'.format(self.username, self.email)
-    
-    # @staticmethod
-    # def getAllUsers():
-    #     user = User.query.all()
-    #     return user
+        return '<User {}, {}>'.format(self.username, self.email)    
 
     def returnJson(self):
         reviewJsonFormat = {'username':self.username, 'email':self.email, 'id':self.id, 'password':self.password}
@@ -37,7 +32,7 @@ class Business(db.Model):
     __tablename__ = 'businesses'
     id = db.Column(db.Integer, primary_key = True)
     bizname = db.Column(db.String(50), nullable=False)
-    userid = db.Column(db.String(50), db.ForeignKey('users.id'))
+    userid = db.Column(db.Integer, db.ForeignKey('users.id'))
     location = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -60,7 +55,8 @@ class Business(db.Model):
     def returnJson(self):
         businessJsonFormat = {'id':self.id, 'bizName':self.bizname, 'userId':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
         return businessJsonFormat
-        
+
+    
 
 ############### REVIEW MODEL #################
 class Review(db.Model):
@@ -82,6 +78,15 @@ class Review(db.Model):
 
     def __repr__(self):
         return '<Review {}>'.format(self.review)
+
+    @staticmethod
+    def check_business_exists(id):
+        id = id
+        biz = Business.query.get(id)
+        if biz:
+            return biz
+        else:
+            return Noned
 
     def returnJson(self):
         reviewJsonFormat = {'id':self.id, 'userid':self.userid, 'bizid':self.bizid, 'Author':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}

@@ -1,0 +1,32 @@
+version: 2
+checks:
+  argument-count:
+    config:
+      threshold: 20
+  complex-logic:
+    config:
+      threshold: 20
+  file-lines:
+    config:
+      threshold: 260
+  method-complexity:
+    config:
+      threshold: 50
+  method-count:
+    config:
+      threshold: 50
+  method-lines:
+    config:
+      threshold: 50
+  nested-control-flow:
+    config:
+      threshold: 20
+  return-statements:
+    config:
+      threshold: 20
+  similar-code:
+    config:
+      threshold: 200
+  identical-code:
+    config:
+      threshold: 100
