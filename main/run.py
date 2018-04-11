@@ -14,7 +14,7 @@ swagger = Swagger(app)
 #Registering the blueprints for the different views
 app.register_blueprint(userBlueprint)
 app.register_blueprint(businessBlueprint)
-app.register_blueprint(reviewBlueprint)
+app.register_blueprint(reviewBlueprint, url_ref='/api/business')
 
 db.init_app(app)
 

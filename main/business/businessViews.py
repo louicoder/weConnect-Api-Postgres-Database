@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, request, json, jsonify, make_response
+from flask import Blueprint, Flask, request, json, jsonify, make_response, url_for, abort
 import jwt
 import datetime
 from user.userViews import token_required, loggedInUser
@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
 from appModels import Business, db
 from flask_paginate import Pagination, get_page_args, get_page_parameter
+# from ..run import businessBlueprint
 
 
 businessBlueprint = Blueprint('business', __name__)
@@ -45,10 +46,11 @@ def createBusiness():
 @swag_from('retrieveBusiness.yml')
 # @token_required
 def getOneBusiness(id):
-    biz = Business.query.get(id)    
+    biz = Business.query.get(id)
     if biz:
         return jsonify({'message':biz.returnJson()}), 200
     else:
+
         return jsonify({'message':'no business with id '+ str(id) +' exists'}), 404
     
 
@@ -57,13 +59,31 @@ def getOneBusiness(id):
 @swag_from('retrieveAllBusinesses.yml')
 # @token_required
 def getAllBusinesses():
-    businesses = Business.query.all()
+    businesses = Business.query.filter_by(id=2)
+    # print(Business.query.filter_by(id=1))
+    # print(businesses.count())
+    print(type(businesses))
     if not businesses:
         return jsonify({'message':'No businesses exist, please register one'}), 404
-    else:        
-        return jsonify({'businesses':[business.returnJson() for business in businesses]}), 200
+    else:
         
-
+        page_num = request.args.get('page', 1, type=int)
+        limit = request.args.get('limit', 1, type=int)
+        item = Business.query.paginate(per_page=1, page=page_num, error_out=False)        
+        results = item.items
+        
+        prev =None
+        if item.has_prev:
+            # prev = url_for('/api/businesses?page={}&limit={}'.format(page_num, limit), page=page_num-1, _external=True)
+            prev = url_for('127.0.0.1:5000/api/businesses', page=page_num-1, _external=True)
+        next=None
+        if item.has_next:
+            # next = url_for('/api/businesses?page={}&limit={}'.format(page_num, limit), page=page_num+1, _external=True)
+            next = url_for('127.0.0.1:5000/api/businesses', page=page_num-1, _external=True)
+        return jsonify({'businesses':[business.returnJson() for business in results],'previous':prev, 'next':next}), 200        
+    #     return jsonify({'businesses':json.dumps(item),'previous':prev, 'next':next}), 200
+    # return jsonify({'businesses':get_paginated_list(Business, '/api/businesses/page', start=request.args.get('start', 1), limit=request.args.get('limit', 2))})
+    # return jsonify({'businesses':get_paginated_list(Business, '/api/businesses/page', start=request.args.get('start', 1), limit=request.args.get('limit', 2))})
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['PUT'])
 @swag_from('updateBusiness.yml')
@@ -144,7 +164,26 @@ def deletebusiness(id):
 @swag_from('searchBusiness.yml')
 # @token_required
 def searchBusiness():
-    pass
+    name = request.args.get('q')
+    location = request.args.get('location')
+    category = request.args.get('category')
+    #/api/businesses/search?q=<business name>&filtery_type=<location or category>&filter_value=<value>
+    filter_type = request.args.get('filter_type')
+    filter_value = request.args.get('filter_value')
+
+    if filter_type == 'location':
+        result = Business.query.filter_by(bizname=name, location=filter_value)
+    
+    elif filter_type == 'category':
+        result = Business.query.filter_by(bizname=name, category=filter_value)
+    else:
+        return jsonify({'message':'unknown filter type passed in query url'})
+
+    if result.count() > 0:
+        print(result)
+        return jsonify({'businesses':[res.returnJson() for res in result]}), 200
+    else:
+        return jsonify({'message':'No business matching your search'}), 400    
 
 
 @businessBlueprint.route('/api/businesses/filter', methods=['GET'])
@@ -153,23 +192,3 @@ def searchBusiness():
 def filterBusiness():
     pass
 
-def getPaginatedResult(klass, url, start, limit):
-    results = klass.query.all()
-    count = len(results)
-
-    if count < start:
-        return jsonify({'message':'No records Found'}), 404
-
-    obj = {}
-    obj['start'] = start
-    obj['limit'] = limit
-    obj['count'] = count
-
-    if start == 1:
-        obj['previous'] =''
-    
-    if start + limit > count:
-        obj['next'] = ''
-
-    obj['results']
-    pass

@@ -58,7 +58,7 @@ def createUser():
                 return jsonify({'message':'User successfully registered'})
         else:
             return jsonify({'message':'user already exists'})    
-        
+        password
 
 @userBlueprint.route('/api/auth/login', methods=['POST'])
 @swag_from('loginUser.yml')
