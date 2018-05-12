@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.org/louiCoder/weConnect-Api-Postgres-Database.svg?branch=develop)](https://travis-ci.org/louiCoder/weConnect-Api-Postgres-Database)
+[![Maintainability](https://api.codeclimate.com/v1/badges/b4e864ea0427cfb100a8/maintainability)](https://codeclimate.com/github/louiCoder/weConnect-Api-Postgres-Database/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/b4e864ea0427cfb100a8/test_coverage)](https://codeclimate.com/github/louiCoder/weConnect-Api-Postgres-Database/test_coverage)
+[![Coverage Status](https://coveralls.io/repos/github/louiCoder/weConnect-Api-Postgres-Database/badge.svg)](https://coveralls.io/github/louiCoder/weConnect-Api-Postgres-Database)
+
+
 # weConnect-Api-Databases
 
 WeConnect-Api provides a platform that brings businesses and individuals together. This platform creates awareness for businesses and gives the users the ability to write reviews about the businesses they have interacted with.
@@ -14,12 +20,12 @@ WeConnect-Api provides a platform that brings businesses and individuals togethe
 | POST | api/auth/logout | Logs out a user |
 | POST | api/auth/reset-password | Password reset |
 | POST | api/businesses | Registering a business |
-| PUT | api/businesses/_businessId_ | Updating a business profile |
-| DELETE | api/businesses/_businessId_ | delete/remove a business profile |
+| PUT | api/businesses/_<businessId>_ | Updating a business profile |
+| DELETE | api/businesses/_<businessId>_ | delete/remove a business profile |
 | GET | api/businesses | gets all avaliable businesses |
-| GET | api/businesses/_businessId_ | Get a business |
-| POST | api/businesses/_businessId_/reviews | Add a review for a business |
-| GET | api/businesses/_businessId_/reviews | Get all reviews for a business |
+| GET | api/businesses/_<businessId>_ | Get a business |
+| POST | api/businesses/_<businessId>_/reviews | Add a review for a business |
+| GET | api/businesses/_<businessId>_/reviews | Get all reviews for a business |
 
 
 ### __Technologies used to develop this site__

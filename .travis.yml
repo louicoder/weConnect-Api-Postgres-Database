@@ -1,0 +1,30 @@
+language: python
+
+python: 
+  - 3.6.5
+
+install: 
+  - pip install -r requirements.txt
+  - pip install coveralls
+  - pip install unittest2
+  - pip install jwt
+
+env: 
+  - COVERAGE_FILE=".coverage" FLASK_APP="run.py" SECRET="veryHardtoGEtPassword" APP_SETTINGS="config.TestingConfig" DATABASE_URL="postgres://postgres@localhost/weconnect"
+  # - SQLALCHEMY_DATABASE_URI='postgresql://louis:''@localhost/weconnect' SECRET_KEY='veryHardtoGEtPassword' APP_SETTINGS=config.TestingConfig
+
+services:
+  - postgresql
+
+# script to create postgres database
+before_script: 
+  - "psql -c 'create database weconnect;' -U postgres"
+
+#script to run tests
+script:
+  - nosetests --with-coverage --cover-tests  --cover-package=tests
+  - coverage report
+
+#update coveralls on cchanges
+after_success:
+  - coveralls

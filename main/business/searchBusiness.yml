@@ -1,0 +1,81 @@
+Endpoint returning a business searched by name
+---
+tags:
+  - Business
+parameters:
+  - name: x-access-token
+    in: header
+    type: string
+    description: JWT token authorization
+    required: true
+  - name: q
+    in: query
+    description: name of business to search for
+    required: true
+    type: string
+  - name: filter_type
+    in: query
+    description: Choose filter(location or category)
+    type: string
+  - name: filter_value
+    in: query
+    description: Value of your filter
+    type: string
+  - name: page
+    in: query
+    type: integer
+    format: int64
+    description: Page to show
+  - name: limit
+    in: query
+    type: integer
+    format: int64
+    description: Number of businesses to show
+definitions:
+  Business:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      user_id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      location:
+        type: string
+      category:
+        type: string
+      description:
+        type: string
+      date_created:
+        type: string
+        format: date-time
+      date_modified:
+        type: string
+        format: date-time
+      
+responses:
+  200:
+    description: Search Business results
+    schema:
+      $ref: '#/definitions/Business'
+    examples:
+      Businesses: [{
+      "Created By": "business creator", 
+      "Date Created": "Sun, 25 Mar 2018 10:43:31 GMT", 
+      "Last Modified": "Mon, 26 Mar 2018 10:23:28 GMT",
+      "Review count": 3,
+      "Review url":"https://.../api/v1/businesses/1/reviews", 
+      "category": "category 1", 
+      "description": "business 1 description", 
+      "id": 1, 
+      "location": "location 1", 
+      "name": "business 1", 
+      "user_id": 1
+    }]
+  404:
+    description: No businesses by that name
+  401:
+    description: Invalid token / User signed out

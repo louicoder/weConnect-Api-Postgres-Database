@@ -11,7 +11,7 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(256), nullable=False)
     businesses = db.relationship('Business', backref='user', lazy='dynamic', cascade='all, delete-orphan')
-    reviews = db.relationship('Reviews', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    reviews = db.relationship('Review', backref='user', lazy='dynamic', cascade='all, delete-orphan')
 
     def __init__(self, username, email, password):
         self.username= username
@@ -19,7 +19,11 @@ class User(db.Model):
         self.password = password
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return '<User {}, {}>'.format(self.username, self.email)
+
+    def returnJson(self):
+        reviewJsonFormat = {'username':self.username, 'email':self.email, 'id':self.id, 'password':self.password}
+        return reviewJsonFormat
         
 
 ############### BUSINESS MODEL #################
@@ -28,29 +32,31 @@ class Business(db.Model):
     __tablename__ = 'businesses'
     id = db.Column(db.Integer, primary_key = True)
     bizname = db.Column(db.String(50), nullable=False)
-    userid = db.Column(db.String(50), db.ForeignKey('users.id'))
+    userid = db.Column(db.Integer, db.ForeignKey('users.id'))
     location = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.Text, nullable=False)    
+    description = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
-    reviews = db.relationship('Reviews', backref='businesses', lazy='dynamic', cascade='all, delete-orphan')
+    reviews = db.relationship('Review', backref='business', lazy='dynamic', cascade='all, delete-orphan')
 
-    def __init__(self, userid, bizname, category, description, date_created, date_modified):
+    def __init__(self, userid, bizname, location, category, description):
         self.bizname = bizname
         self.userid = userid
+        self.location= location
         self.category = category
         self.description = description
-        self.date_created = date_created
-        self.date_modified = date_modified        
+        # self.date_created = date_created
+        # self.date_modified = date_modified
 
     def __repr__(self):
-        return '<User {}>'.format(self.bizname)
+        return '<Business {}>'.format(self.bizname)
 
     def returnJson(self):
-        businessJsonFormat = {'id':self.id, 'userid':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
+        businessJsonFormat = {'id':self.id, 'bizName':self.bizname, 'userId':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
         return businessJsonFormat
-        
+
+    
 
 ############### REVIEW MODEL #################
 class Review(db.Model):
@@ -62,17 +68,43 @@ class Review(db.Model):
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def __init__(self, id, review, userid, bizid, date_created, date_modified):
-        self.id = id
+    def __init__(self, review, userid, bizid):
+        # self.id = id
         self.review = review
         self.userid = userid
         self.bizid = bizid
-        self.date_created= date_created
-        self.date_modified = date_modified
+        # self.date_created= date_created
+        # self.date_modified = date_modified
 
     def __repr__(self):
-        return '<User {}>'.format(self.review)
+        return '<Review {}>'.format(self.review)
+
+    @staticmethod
+    def check_business_exists(id):
+        id = id
+        biz = Business.query.get(id)
+        if biz:
+            return biz
+        else:
+            return Noned
 
     def returnJson(self):
-        reviewJsonFormat = {'Creator':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
+        reviewJsonFormat = {'id':self.id, 'userid':self.userid, 'bizid':self.bizid, 'Author':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
         return reviewJsonFormat
+
+
+class BlackList(db.Model):
+    """class for blacklisted tokens"""
+    __tablename__ = 'blacklist'
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(256), nullable=False, unique=True)
+
+    def __init__(self, token):
+        self.token = token
+
+    def __repr__(self):
+        return '<Token {}>'.format(self.token)
+
+    def returnJson(self):
+        tokenJsonformat = {'token':self.token}
+        return tokenJsonformat

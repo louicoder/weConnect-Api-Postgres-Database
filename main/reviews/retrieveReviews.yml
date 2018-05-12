@@ -1,0 +1,82 @@
+Endpoint for retrieving reviews about a business
+---
+tags:
+  - Reviews
+consumes:
+  - application/json
+produces:
+  - application/json
+parameters:
+  - name: x-access-token
+    in: header
+    type: string
+    description: JWT token authorization
+    required: true
+  - name: businessId
+    in: path
+    description: "ID of business to return"
+    required: true
+    type: integer
+    format: int64
+  - name: page
+    in: query
+    type: integer
+    format: int64
+    description: Page to show
+  - name: limit
+    in: query
+    type: integer
+    format: int64
+    description: Number of reviews to show
+definitions:
+  Review:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      user_id:
+        type: integer
+        format: int64
+      business_id:
+        type: integer
+        format: int64
+      review:
+        type: string
+        type: string
+      date_created:
+        type: string
+        format: date-time
+      date_modified:
+        type: string
+        format: date-time
+    
+responses:
+  200:
+    description: Reviews about business
+    schema:
+      $ref: '#/definitions/Review'
+    examples:
+     [ "Reviews", 
+  [
+    {
+      "Author: ": "userx", 
+      "Created By": "userx", 
+      "Date Created": "Mon, 15 Feb 2017 13:10 GMT", 
+      "Last Modified": "Mon, 15 Feb 2017 13:19 GMT", 
+      "Review: ": "review1 for business"
+    # }, 
+    # {
+    #   "Author: ": "usery", 
+    #   "Created By": "usery", 
+    #   "Date Created": "Wed, 28 Mar 2018 13:48:35 GMT", 
+    #   "Last Modified": "Wed, 28 Mar 2018 13:48:35 GMT", 
+    #   "Review: ": "this is review 1"
+    }
+  ]]
+  404:
+    description: No existing reviews for this business
+  400:
+    description: business id does not exist
+  401:
+    description: token is invlaid or User has signed out
