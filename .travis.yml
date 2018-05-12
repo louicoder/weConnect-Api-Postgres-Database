@@ -14,8 +14,7 @@ before_script:
   - psql -c "CREATE USER louis;" -U postgres
 
 env: 
-  - DATABASE_URL=postgresql://tibzy@localhost/weconnect SECRET_KEY=some_secret_value 
-  - APP_SETTINGS=config.TestingConfig
+  - DATABASE_URL='postgresql://louis:''@localhost/weconnect' SECRET_KEY='veryHardtoGEtPassword' APP_SETTINGS=config.TestingConfig
 
 #script to run tests
 script:
