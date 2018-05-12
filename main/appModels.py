@@ -19,7 +19,7 @@ class User(db.Model):
         self.password = password
 
     def __repr__(self):
-        return '<User {}, {}>'.format(self.username, self.email)    
+        return '<User {}, {}>'.format(self.username, self.email)
 
     def returnJson(self):
         reviewJsonFormat = {'username':self.username, 'email':self.email, 'id':self.id, 'password':self.password}

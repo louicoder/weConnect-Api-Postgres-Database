@@ -109,36 +109,60 @@ def create_user():
 @userBlueprint.route('/api/auth/login', methods=['POST'])
 @swag_from('loginUser.yml')
 def login():
-    auth = request.authorization
-    un=auth.username
-    pd=auth.password
+    global logged_in_user
+    auth = None   
+    jsn = request.data
+    data = json.loads(jsn)
 
-    #if no password is given.
-    if not un:
-        return jsonify({"message":"no username was provided"}), 400
+    if logged_in_user:
+        username = logged_in_user['username']
+        return jsonify({'message':'already logged in as '+username})
 
-    #if no password is given.
-    if not pd:
-        return jsonify({"message":"no password was provided"}), 400
-    
     if auth:
+        un=auth.username
+        pd=auth.password
+
+        #if no password is given.
+        if not un:
+            return jsonify({"message":"no username was provided"}), 400
+
+        #if no password is given.
+        if not pd:
+            return jsonify({"message":"no password was provided"}), 400
+
         token = jwt.encode({'user':auth.username, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, SECRET_KEY)
+        print(token)
         user = User.query.filter_by(username=un).first()
-        if check_password_hash(user.password, pd) and user:
+        print(user)
+        if check_password_hash(user.password, pd):
             logged_in_user['id']=user.id
             logged_in_user['username'] = user.username
             logged_in_user['password'] = user.password
-            return jsonify({'token':token.decode('UTF-8')}), 200
-        else:
-            return make_response(jsonify({'message':'wrong username or password'})), 404 
+            return jsonify({'token':token.decode('UTF-8'), 'message':'successfully logged in'}), 200
+    elif data:
 
-        return jsonify({'token': token.decode('UTF-8')})
-    return make_response(jsonify({'message':'couldnt verify'})), 401
+        un=data['username']
+        pd=data['password']
+
+
+        token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, SECRET_KEY)
+        print(token)
+        user = User.query.filter_by(username=un).first()
+        print(user)
+        if check_password_hash(user.password, pd):
+            logged_in_user['id']=user.id
+            logged_in_user['username'] = user.username
+            logged_in_user['password'] = user.password
+            return jsonify({'token':token.decode('UTF-8'), 'message':'successfully logged in'}), 200
+    else:
+        return make_response(jsonify({'message':'wrong username or password'})), 404
+        
+    return make_response(jsonify({'message':'wrong username or password'})), 401
        
 
 @userBlueprint.route('/api/auth/reset-password', methods=['PUT'])
 @swag_from('resetUserPassword.yml')
-# @token_required
+@token_required
 def reset_password():
     global logged_in_user
     jsn = request.data
@@ -176,9 +200,6 @@ def logout():
     
     # if BlackList.query.filter_by(token=token).count() == 1:
     return jsonify({"message":"successfully logged out"})
-
-
-
 
 
 

@@ -30,3 +30,8 @@ checks:
   identical-code:
     config:
       threshold: 100
+  similar-code:
+    config:
+      threshold: 100
+  duplication:
+    enabled: false
