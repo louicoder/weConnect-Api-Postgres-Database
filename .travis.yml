@@ -10,11 +10,10 @@ install:
 
 #script to run tests
 script:
-  # - nosetests tests.tests --with-coverage
-  # - coverage report
   - nose2 tests/
-  - coverage run --source='.' --omit='app/main/*'  manage.py test
-  - coverage report --omit='app/main/*'
+  - coverage report
+  # - coverage run --source='.' --omit='app/main/*'  manage.py test
+  # - coverage report --omit='app/main/*'
 
 #update coveralls on cchanges
 after_success:
