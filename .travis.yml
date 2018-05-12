@@ -14,7 +14,7 @@ before_script:
   - psql -c "CREATE USER louis;" -U postgres
 
 env: 
-  - DATABASE_URL='postgresql://louis:''@localhost/weconnect' SECRET_KEY='veryHardtoGEtPassword' APP_SETTINGS=config.TestingConfig
+  - SQLALCHEMY_DATABASE_URI='postgresql://louis:''@localhost/weconnect' SECRET_KEY='veryHardtoGEtPassword' APP_SETTINGS=config.TestingConfig
 
 #script to run tests
 script:
