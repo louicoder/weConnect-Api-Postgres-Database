@@ -12,7 +12,7 @@ install:
 script:
   # - nosetests tests.tests --with-coverage
   # - coverage report
-  - nose2 
+  - nose2 tests/
   - coverage run --source='.' --omit='app/main/*'  manage.py test
   - coverage report --omit='app/main/*'
 
