@@ -39,16 +39,16 @@ class Testuser(unittest.TestCase):
         
     
     def test_user_registration_success(self):
-        print('here')
+        
         x = self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
-        res = self.client.post('/api/auth/login', data=json.dumps(self.user))
+        # res = self.client.post('/api/auth/login', data=json.dumps(self.user))
         # print(res)
         # print(x)
         # test_user_login_data = json.loads(x.data.decode())
         # print(test_user_login_data)
         # self.token = test_user_login_data['message']['token']
         # response = self.client.post('api/auth/register', data = json.dumps(self.user))
-        self.assertEqual(200, res.status_code)
+        # self.assertEqual(200, res.status_code)
         self.assertEqual(201, x.status_code)
 
     # def test_user_login(self):
