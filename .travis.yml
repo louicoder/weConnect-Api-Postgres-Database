@@ -9,7 +9,7 @@ install:
   - pip install unittest2
 
 env: 
-  - COVERAGE_FILE=".coverage" FLASK_APP="run.py" SECRET="veryHardtoGEtPassword" APP_SETTINGS="testing" DATABASE_URL="postgres://postgres@localhost/weconnect"
+  - COVERAGE_FILE=".coverage" FLASK_APP="run.py" SECRET="veryHardtoGEtPassword" APP_SETTINGS="config.TestingConfig" DATABASE_URL="postgres://postgres@localhost/weconnect"
   # - SQLALCHEMY_DATABASE_URI='postgresql://louis:''@localhost/weconnect' SECRET_KEY='veryHardtoGEtPassword' APP_SETTINGS=config.TestingConfig
 
 services:
