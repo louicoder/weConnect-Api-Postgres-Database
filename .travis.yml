@@ -1,27 +1,28 @@
 language: python
 
 python: 
-  - "3.6"
+  - 3.6.5
 
 install: 
   - pip install -r requirements.txt
+  - pip install coveralls
+  - pip install unittest2
+
+env: 
+  - COVERAGE_FILE=".coverage" FLASK_APP="run.py" SECRET="veryHardtoGEtPassword" APP_SETTINGS="testing" DATABASE_URL="postgres://postgres@localhost/weconnect"
+  # - SQLALCHEMY_DATABASE_URI='postgresql://louis:''@localhost/weconnect' SECRET_KEY='veryHardtoGEtPassword' APP_SETTINGS=config.TestingConfig
 
 services:
   - postgresql
 
+# script to create postgres database
 before_script: 
-  - psql -c "CREATE DATABASE weconnect;" -U postgres
-  - psql -c "CREATE USER louis;" -U postgres
-
-env: 
-  - SQLALCHEMY_DATABASE_URI='postgresql://louis:''@localhost/weconnect' SECRET_KEY='veryHardtoGEtPassword' APP_SETTINGS=config.TestingConfig
+  - "psql -c 'create database weconnect;' -U postgres"
 
 #script to run tests
 script:
-  - nosetests tests --with-coverage
+  - nosetests --with-coverage --cover-tests  --cover-package=tests
   - coverage report
-  # - coverage run --source='.' --omit='app/main/*'  manage.py test
-  # - coverage report --omit='app/main/*'
 
 #update coveralls on cchanges
 after_success:
