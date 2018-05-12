@@ -33,5 +33,6 @@ checks:
   similar-code:
     config:
       threshold: 100
-  duplication:
-    enabled: false
+  cognitive-complexity:
+    config:
+      threshold: 7
