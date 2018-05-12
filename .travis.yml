@@ -10,7 +10,7 @@ install:
 
 #script to run tests
 script:
-  - nose2 tests/
+  - nose2 tests/ --with-coverage
   - coverage report
   # - coverage run --source='.' --omit='app/main/*'  manage.py test
   # - coverage report --omit='app/main/*'
