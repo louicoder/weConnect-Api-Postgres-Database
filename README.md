@@ -49,19 +49,45 @@ WeConnect-Api provides a platform that brings businesses and individuals togethe
 * Get all project dependencies by running the command below.
 
       $ pip freeze -r requirements.txt
+
+### Set up postgres database
+
+      $ sudo -u postgres createuser --interactive
+      $ sudo -u postgres createdb <database_username> 
+
+### connect to postgres database 
+      $ sudo -u <database_username> psql
+      $ psql -d postgres
+
+### set up environment variables
+
+      $ APP_SETTINGS="config.TestingConfig" or "config.ProductionConfig" or "config.DevelopmentConfig"
+      $ DATABASE_URL="postgres://<username>:<password>@localhost/database_name"
+
+### run the migrations 
+      $ python manage.py shell
+      $ db.create_all()
+      $ exit()
+      $ python manage.py db init
+   
+### To run the unit tests invoke/run the command below.
+
+      $ nosetests tests 
+
+### or for detailed output on unit tests run with verbose.
+
+      $ nosetests -v tests
       
-### __To run the unit tests invoke/run the command below.__
+### To run the application invoke the command below.
 
-      $ nosetests tests/tests.py
-
-### __or for detailed output on unit tests run with verbose.__
-
-      $ nosetests -v tests/tests.py
+      $ python manage.py runserver
       
-#### To run the application invoke the command below.
-
-      $ python app.py
-      
- #### Now that the server is running , open your browser and run one of the links below.
+### Now that the server is running , open your browser and run one of the links below.
 
       $ localhost:5000  or  127.0.0.1:5000
+
+### Access the apidocs with the caddress below
+      $ localhost:5000/apidocs  or  127.0.0.1:5000/apidocs
+
+### To access the apidocs direct run gunicorn server with command below
+      $ gunicorn

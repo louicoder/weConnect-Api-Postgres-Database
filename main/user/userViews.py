@@ -110,52 +110,30 @@ def create_user():
 @swag_from('loginUser.yml')
 def login():
     global logged_in_user
-    auth = None   
     jsn = request.data
     data = json.loads(jsn)
+    print(data)
 
     if logged_in_user:
         username = logged_in_user['username']
         return jsonify({'message':'already logged in as '+username})
 
-    if auth:
-        un=auth.username
-        pd=auth.password
-
-        #if no password is given.
-        if not un:
-            return jsonify({"message":"no username was provided"}), 400
-
-        #if no password is given.
-        if not pd:
-            return jsonify({"message":"no password was provided"}), 400
-
-        token = jwt.encode({'user':auth.username, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, SECRET_KEY)
-        print(token)
-        user = User.query.filter_by(username=un).first()
-        print(user)
-        if check_password_hash(user.password, pd):
-            logged_in_user['id']=user.id
-            logged_in_user['username'] = user.username
-            logged_in_user['password'] = user.password
-            return jsonify({'token':token.decode('UTF-8'), 'message':'successfully logged in'}), 200
-    elif data:
-
+    if data:
         un=data['username']
         pd=data['password']
-
 
         token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, SECRET_KEY)
         print(token)
         user = User.query.filter_by(username=un).first()
-        print(user)
+
+        if not user:
+            return jsonify({'message':'wrong username or password'}), 400
+        
         if check_password_hash(user.password, pd):
             logged_in_user['id']=user.id
             logged_in_user['username'] = user.username
             logged_in_user['password'] = user.password
             return jsonify({'token':token.decode('UTF-8'), 'message':'successfully logged in'}), 200
-    else:
-        return make_response(jsonify({'message':'wrong username or password'})), 404
         
     return make_response(jsonify({'message':'wrong username or password'})), 401
        
@@ -191,15 +169,10 @@ def logout():
     # 
     global logged_in_user
     if not logged_in_user:
-        return jsonify({"message":"you are already logged out"}), 400
-    # tk = request.headers['x-access-token'
+        return jsonify({"message":"you are already logged out"}), 400 #bad request
     
-    # token = BlackList(token=tk)
-    # db.session.add(token)
-    # db.session.commit()
-    
-    # if BlackList.query.filter_by(token=token).count() == 1:
-    return jsonify({"message":"successfully logged out"})
+    logged_in_user ={}
+    return jsonify({"message":"successfully logged out"}), 200 #ok
 
 
 
