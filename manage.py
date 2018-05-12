@@ -14,11 +14,7 @@ from main.appModels import db
 
 
 db.init_app(app)
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
-# app.config['SQLALCHEMY_DATABASE_URI']= os.environ['DATABASE_URL']
-# app.config['DEBUG'] = os.getenv('DEBUG')
-# app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config.from_object(os.environ['APP_SETTINGS'])
 
 migrate = Migrate(app, db)
