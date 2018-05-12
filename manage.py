@@ -14,17 +14,23 @@ from main.appModels import db
 
 
 db.init_app(app)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
-app.config['SQLALCHEMY_DATABASE_URI']= os.environ.get('DATABASE_URL')
-app.config['DEBUG'] = os.getenv('DEBUG')
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+# app.config['SQLALCHEMY_DATABASE_URI']= os.environ['DATABASE_URL']
+# app.config['DEBUG'] = os.getenv('DEBUG')
+# app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+app.config.from_object(os.environ['APP_SETTINGS'])
 
 migrate = Migrate(app, db)
 manager = Manager(app)
 
 def make_shell_context():
     return dict(app=app, db=db, User=User, Business=Business, Review=Review)
+
+@manager.command
+def migrator():
+    os.system('export FLASK_APP=run.py')        
+    os.system('flask db init')
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
