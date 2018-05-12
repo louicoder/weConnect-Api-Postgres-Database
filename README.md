@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.org/louiCoder/weConnect-Api-Postgres-Database.svg?branch=master)](https://travis-ci.org/louiCoder/weConnect-Api-Postgres-Database)
 [![Maintainability](https://api.codeclimate.com/v1/badges/b4e864ea0427cfb100a8/maintainability)](https://codeclimate.com/github/louiCoder/weConnect-Api-Postgres-Database/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/b4e864ea0427cfb100a8/test_coverage)](https://codeclimate.com/github/louiCoder/weConnect-Api-Postgres-Database/test_coverage)
 [![Coverage Status](https://coveralls.io/repos/github/louiCoder/weConnect-Api-Postgres-Database/badge.svg)](https://coveralls.io/github/louiCoder/weConnect-Api-Postgres-Database)
 
 
