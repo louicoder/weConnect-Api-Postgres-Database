@@ -16,10 +16,10 @@ before_script:
 env: 
   - DATABASE_URL=postgresql://tibzy@localhost/weconnect SECRET_KEY=some_secret_value 
   - APP_SETTINGS=config.TestingConfig
-  
+
 #script to run tests
 script:
-  - nosetests tests.tests --with-coverage
+  - nosetests tests --with-coverage
   - coverage report
   # - coverage run --source='.' --omit='app/main/*'  manage.py test
   # - coverage report --omit='app/main/*'
