@@ -1,74 +1,126 @@
 import unittest
-# from test_base import BaseTestCase
+from .test_base import BaseTestCase
 from main.user.userViews import userBlueprint
 from flask import request, url_for, json
 from manage import db
 from run import app
 
 
-class Testuser(unittest.TestCase):
+class Testuser(BaseTestCase):
 
-    login_user = {'password': 'password', 'username': 'louis'}
+    def test_username_missing_registration(self):
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user_no_username), content_type='application/json')
 
-    user1 = {
-    'username': 'yyyy',
-    'password': 'password',
-    'email': 'testuser@email.com'
-    }
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertTrue(result['message'] == "username is missing")
+        self.assertEqual(400, response.status_code)
 
-    user = {
-    'username': 'xxxxx',
-    'password': 'password',
-    'email': 'louis@email.com'
-    }
+    def test_username_special_characters_registration(self):
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user_with_special_characters), content_type='application/json')
 
-    token = None
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertTrue(result['message'] == "username contains special characters")
+        self.assertEqual(400, response.status_code)
 
-    def setUp(self):
-        self.app = app
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        self.app.testing = True
-        self.client = self.app.test_client()
-        db.drop_all()
-        db.create_all()
+    def test_short_username_registration(self):
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user_short_username), content_type='application/json')
 
-        # self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
-        # res = request.get
-        # login = self.client.post('/api/auth/login', data=json.dumps({'password': 'person', 'username': 'louis'}), with self.client:
-        
-    
-    def test_user_registration_success(self):
-        
-        x = self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
-        
-        self.assertEqual(201, x.status_code)
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertEqual(result['message'], "username too short, should be between five and ten characters")
+        self.assertEqual(400, response.status_code)
 
-    def test_user_login(self):
-        print('here')
-        response = self.client.post(
-            '/api/auth/login',
-            data=json.dumps(dict(
-                username='xxxxx',
-                password='password'
-            )),
-            content_type='application/json'
-        )
+    def test_long_username_registration(self):
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user_long_username), content_type='application/json')
 
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['message'] == 'successfully logged in')
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertEqual(result['message'], "username too long, should be between five and ten characters")
+        self.assertEqual(400, response.status_code)
 
-    # def test_user_login(self):
-    #     response = self.client.post('/api/auth/login', data=json.dumps(self.user1))
+    def test_email_missing_registration(self):
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user_no_email), content_type='application/json')
 
-    #     self.assertEqual(200, response.status_code)
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertTrue(result['message'] == "email is missing")
+        self.assertEqual(400, response.status_code)
+
+    def test_password_missing_registration(self):
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user_no_password), content_type='application/json')
+
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertTrue(result['message'] == "password is missing")
+        self.assertEqual(400, response.status_code)
+
+    def test_user_exists_registration(self):
+        self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
+
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertTrue(result['message'] == "user already exists")
+        self.assertEqual(400, response.status_code)
+
+    def test_dot_mising_user_email(self):
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user_email_dot_missing), content_type='application/json')
+
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertEqual(result['message'], "email is invalid, dot missing")
+        self.assertEqual(400, response.status_code)
+
+    def test_at_mising_user_email(self):
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user_email_at_missing), content_type='application/json')
+
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertEqual(result['message'], "email is invalid, @ symbol missing")
+        self.assertEqual(400, response.status_code)
+
+    def test_user_registration_successful(self):
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
+
+        # get the results returned in json format
+        result = json.loads(response.data.decode())
+        self.assertTrue(result['message'] == "user successfully registered")
+        self.assertEqual(201, response.status_code)
+
+    def test_username_missing_login(self):
+        response = self.client.post('/api/auth/login', data=json.dumps(self.username_missing_login), content_type='application/json')
+        # get the results returned in json format
+        result = json.loads(response.data.decode())     
+        self.assertEqual(result['message'], "username missing")
+        self.assertEqual(400, response.status_code)
+
+    def test_password_missing_login(self):
+        response = self.client.post('/api/auth/login', data=json.dumps(self.password_missing_login), content_type='application/json')
+        # get the results returned in json format
+        result = json.loads(response.data.decode())     
+        self.assertEqual(result['message'], "password missing")
+        self.assertEqual(400, response.status_code)
+
+    def test_non_registered_user_login(self):
+        response = self.client.post('/api/auth/login', data=json.dumps(self.user_not_registered), content_type='application/json')
+        # get the results returned in json format
+        result = json.loads(response.data.decode())     
+        self.assertTrue(result['message'] == "wrong username or password")
+        self.assertEqual(400, response.status_code)
 
 
-    def tearDown(self):        
-        # db.drop_all()
-        # db.create_all()
-        # db.session.close()
-        pass
+    def test_user_already_logged_in(self):
+        res = self.client.post('/api/auth/login', data=json.dumps(self.user_login_success), content_type='application/json')
+        un = json.loads(res.data.decode())
+        # username = un['username']
+        response = self.client.post('/api/auth/login', data=json.dumps(self.user_login_success), content_type='application/json')
+        # get the results returned in json format
+        result = json.loads(response.data.decode())     
+        # self.assertEqual(result['message'], "you are already logged in as {}".format(result['username']))
+        self.assertEqual(400, response.status_code)
+
         
 
 if __name__ == 'main':

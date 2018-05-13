@@ -1,59 +1,100 @@
-# import unittest
-# import json
-# import jwt
-# import datetime
-# from manage import db
-# from flask import request, url_for
-# from config import Config
-# from run import app
+import unittest
+import json
+import jwt
+import datetime
+from manage import db
+from flask import request, url_for
+from config import Config
+from run import app
 # from main.user.userViews import userBlueprint
 # from main.business.businessViews import businessBlueprint
 # from main.reviews.reviewViews import reviewBlueprint
 
-# class BaseTestCase(unittest.TestCase):
+class BaseTestCase(unittest.TestCase):
+    # Set up test variables
+    def setUp(self):
+        self.app=app
+        # initialize the test client
+        self.client = self.app.test_client()
 
-#     def setUp(self):
-#         self.app = app
-#         self.app_context = self.app.app_context()
-#         self.app_context.push()
-#         self.app.testing = True
-#         self.client = self.app.test_client()
-#         db.drop_all()
-#         db.create_all()        
+        with self.app.app_context():
+            # This is the user test json data with a predefined username, password and email
+            self.user = {
+                'username': 'louis',
+                'password': 'password',
+                'email': 'louis.michael@gmail.com'
+            }
 
-#         #register user, login the user in and create token for them
-#         self.client.post('/api/auth/register', data=json.dumps(self.user))        
-#         test_user_login = self.client.post('/api/auth/login', data=json.dumps(self.login_user))
-#         test_user_login_data = json.loads(test_user_login.data.decode())
-#         print(test_user_login_data)
-#         self.token = test_user_login_data['message']['token']
-#         print('------------------')
-#         # register new business
-#         # self.client.post(url_for('businessBluePrint.create_business'), data=json.dumps(self.business), headers={'x-access-token': self.token})
-#         # #create the review
-#         # self.client.post(url_for('reviewBlueprint.post_review', id=1), data=json.dumps(self.review), headers={'x-access-token': self.token})
+            self.user_no_username = {
+                'password': 'password',
+                'email': 'louis.michael@gmail.com'
+            }
 
-#     def tearDown(self):
-#         db.session.remove()
-#         db.drop_all()
-#         self.app_context.pop()
+            self.user_no_email = {
+                'username': 'louis',
+                'password': 'password'
+            }
 
-#     login_user = {'password': 'password', 'username': 'testuser'}
+            self.user_no_password = {
+                'username': 'louis',
+                'email': 'louis.michael@gmail.com'
+            }
 
-#     user = {
-#     'username': 'testuser',
-#     'password': 'password',
-#     'email': 'testuser@email.com'
-#     }
+            self.user_login_success = {
+                'username': 'louis',
+                'password': 'password'
+            }
 
-#     business = {
-#         'name': 'business 1',
-#         'location': 'location 1',
-#         'category': 'category 1',
-#         'description': 'business description 1'
-#     }
+            self.user_not_registered = {
+                'username': 'xxxxx',
+                'password': 'password'
+            }
 
-#     review = {'review': 'review 1 for the business'}
+            self.username_missing_login = {
+                'password': 'password'
+            }
 
+            self.password_missing_login = {
+                'username': 'password'
+            }
 
+            self.user_login_failed = {
+                'username': 'louis',
+                'password': 'pass'
+            }
+
+            self.user_with_special_characters = {
+                'username': 'louis!',
+                'password': 'password',
+                'email': 'louis.michael@gmail.com'
+            }
+
+            self.user_short_username = {
+                'username': 'loui',
+                'password': 'password',
+                'email': 'louis.michael@gmail.com'
+            }
+
+            self.user_long_username = {
+                'username': 'justalongusername',
+                'password': 'password',
+                'email': 'louis.michael@gmail.com'
+            }
+
+            self.user_email_dot_missing = {
+                'username': 'louis',
+                'password': 'password',
+                'email': 'michael@gmailcom'
+            }
+
+            self.user_email_at_missing = {
+                'username': 'louis',
+                'password': 'password',
+                'email': 'louis.michaelgmail.com'
+            }
+
+            # create all tables
+            db.session.close()
+            db.drop_all()
+            db.create_all()
     

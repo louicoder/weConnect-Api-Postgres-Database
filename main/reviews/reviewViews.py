@@ -7,7 +7,7 @@ from ..appModels import db, Business, Review
 reviewBlueprint = Blueprint('reviews', __name__)
 @reviewBlueprint.route('/api/businesses/<int:id>/reviews', methods=['POST'])
 @swag_from('createReview.yml')
-# @token_required
+@token_required
 def create_review(id):
     """Function is responsible fof creating a new review"""
     global logged_in_user
@@ -17,7 +17,7 @@ def create_review(id):
 
     #check whether business exists before creating review
     exists = Review.check_business_exists(id)
-    print(exists)
+    print(exists.id)
     
     if exists:
         userid= exists.userid
@@ -35,11 +35,11 @@ def create_review(id):
 
 @reviewBlueprint.route('/api/businesses/<int:id>/reviews', methods=['GET'])
 @swag_from('retrieveReviews.yml')
-# @token_required
+@token_required
 def get_all_reviews(id):
     reviews = Review.query.filter_by(bizid=id)
-
+    # print(reviews)
     if reviews.count() != 0:
         return jsonify({'reviews':[review.returnJson() for review in reviews]}), 200
     else:
-        return jsonify({'message':'No reviews Found for that business id'}), 404
+        return jsonify({'message':'No reviews found for that business id'}), 404

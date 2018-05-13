@@ -43,9 +43,7 @@ def token_required(f):
 def create_user():
     jsn = request.data
     data = json.loads(jsn)
-    username = data['username']
-    password = data['password']
-    email = data['email']
+    
 
     specialChars = ['@', '#', '$', '%', '^', '&', '*', '!', '/', '?', '-', '_']
     
@@ -74,10 +72,10 @@ def create_user():
 
     #check length of username, should be five characters and above
     if len(username) < 5:
-        return jsonify({'message':'username too short, should be five characters and above'}), 400 #bad request
+        return jsonify({'message':'username too short, should be between five and ten characters'}), 400 #bad request
 
     if len(username) > 10:
-        return jsonify({'message':'username too long, should be five characters and above'}), 400 #bad request
+        return jsonify({'message':'username too long, should be between five and ten characters'}), 400 #bad request
 
     if len(data['password']) < 5:
         return jsonify({'message':'password too short, should be between five and ten characters'}), 400 #bad request
@@ -92,6 +90,10 @@ def create_user():
     #check if the email contains an @ symbol
     if '@' not in data['email']:
         return jsonify({'message':'email is invalid, @ symbol missing'}), 400 #bad request
+
+    username = data['username']
+    password = data['password']
+    email = data['email']
 
     if not username or not password or not email:
         return jsonify({'message':'make sure that you have passed all fields.'})
@@ -112,30 +114,33 @@ def login():
     global logged_in_user
     jsn = request.data
     data = json.loads(jsn)
-    print(data)
 
     if logged_in_user:
         username = logged_in_user['username']
-        return jsonify({'message':'already logged in as '+username})
+        return jsonify({'message':'you are already logged in as '+username})
 
     if data:
+        if 'username' not in data.keys():
+            return jsonify({"message":"username missing"}), 400
+
+        if 'password' not in data.keys():
+            return jsonify({"message":"password missing"}), 400
+
         un=data['username']
         pd=data['password']
 
         token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, SECRET_KEY)
-        print(token)
         user = User.query.filter_by(username=un).first()
-
         if not user:
             return jsonify({'message':'wrong username or password'}), 400
         
-        if check_password_hash(user.password, pd):
+        if check_password_hash(user.password, pd) and user:
             logged_in_user['id']=user.id
             logged_in_user['username'] = user.username
             logged_in_user['password'] = user.password
             return jsonify({'token':token.decode('UTF-8'), 'message':'successfully logged in'}), 200
         
-    return make_response(jsonify({'message':'wrong username or password'})), 401
+    return make_response(jsonify({'message':'wrong username or password'})), 400
        
 
 @userBlueprint.route('/api/auth/reset-password', methods=['PUT'])
@@ -145,6 +150,9 @@ def reset_password():
     global logged_in_user
     jsn = request.data
     data = json.loads(jsn)
+
+    # if 'username' not in data.keys():
+    #     return jsonify({"message":"username missing"})
     
     if 'password' not in data.keys():
         return jsonify({"message":"password missing"})
