@@ -7,14 +7,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
 from ..appModels import Business, db
 from flask_paginate import Pagination, get_page_args, get_page_parameter
-# from ..run import businessBlueprint
 
 
 businessBlueprint = Blueprint('business', __name__)
 
 @businessBlueprint.route('/api/businesses', methods=['POST'])
 @swag_from('createBusiness.yml')
-# @token_required
+@token_required
 def create_business():
     global logged_in_user
     jsn = request.data
@@ -44,6 +43,9 @@ def create_business():
     if len(data['name']) > 10:
         return jsonify({'message':'name of business is too long should between five and ten characters'}), 400 #bad request
 
+    if not logged_in_user:
+        return jsonify({'message':'you are not logged in, please login'}), 400 #bad request
+
     #lets pick the data from json passed
     bizname = data['name']
     userid = logged_in_user['id']
@@ -51,38 +53,31 @@ def create_business():
     category = data['category']
     description = data['description']
 
-    #lets create the business object with data from json but after we check that all fields are passed
-    if not bizname or not userid or not location or not category or not description:
-        return jsonify({'message':'some fields required are missing, please try again'}), 400
-    else:
-        if Business.query.filter_by(bizname=bizname).count() == 0:
-            business = Business(userid, bizname, location, category, description)
-            db.session.add(business)
-            
-            if business:
-                return jsonify({'message':'business has been successfully created'}), 200
-            else:
-                return jsonify({'message':'business was not created, please try again'}), 400
+    
+    if Business.query.filter_by(bizname=bizname).count() == 0:
+        business = Business(userid, bizname, location, category, description)
+        db.session.add(business)
+        
+        if business:
+            return jsonify({'message':'business has been successfully created'}), 200
         else:
-            return jsonify({'message':'business already exists, please try again'})
-
+            return jsonify({'message':'business was not created, please try again'}), 400
+    else:
+        return jsonify({'message':'business already exists, please try again'})
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['GET'])
 @swag_from('retrieveBusiness.yml')
-# @token_required
+@token_required
 def get_one_business(id):
     biz = Business.query.get(id)
     if biz:
         return jsonify({'message':biz.returnJson()}), 200
     else:
-
-        return jsonify({'message':'no business with id '+ str(id) +' exists'}), 404
-    
-
+        return jsonify({'message':'no business with that id exists'}), 404
 
 @businessBlueprint.route('/api/businesses', methods=['GET'])
 @swag_from('retrieveAllBusinesses.yml')
-# @token_required
+@token_required
 def get_all_businesses():
     businesses = Business.query.all()    
     print(type(businesses))
@@ -94,7 +89,7 @@ def get_all_businesses():
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['PUT'])
 @swag_from('updateBusiness.yml')
-# @token_required
+@token_required
 def update_business(id):
     global logged_in_user
     jsn = request.data
@@ -104,8 +99,11 @@ def update_business(id):
     if not logged_in_user:
         return jsonify({"message":"please login"})
 
-    if 'id' not in logged_in_user.keys():
-        return jsonify({"message":"missing userid, cannot update business"})    
+    if len(data.keys()) == 0:
+        return jsonify({'message':'no information was provided for update'}), 400
+
+    # if 'id' not in logged_in_user.keys():
+    #     return jsonify({"message":"missing userid, cannot update business"})
 
     userid = logged_in_user['id']
     
@@ -145,10 +143,9 @@ def update_business(id):
         print([bizname, location, category, description])
         db.session.add(biz)
         db.session.commit()
-        return jsonify({'message':'business '+ str(id) +' has been updated successfully'}), 200
-        
+        return jsonify({'message':'business has been updated successfully'}), 200
     else:
-        return jsonify({'message':'no business with id '+ str(id) +' exists'}), 404
+        return jsonify({'message':'no business with that id exists'}), 404
 
         
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['DELETE'])
@@ -160,9 +157,6 @@ def delete_business(id):
 
     if not logged_in_user:
         return jsonify({"message": "please login"}), 400
-
-    if 'id' not in logged_in_user.keys():
-        return jsonify({"message": "missing userid, cannot delete buiness"})
 
     userid = logged_in_user['id']
     
@@ -185,15 +179,21 @@ def search_business():
     filter_type = str(request.args.get('filter_type'))
     filter_value = str(request.args.get('filter_value'))
 
+    if not filter_type:
+        return jsonify({'message':'filter type missing'}), 400
+
+    if not filter_value:
+        return jsonify({'message':'filter value missing'}), 400
+
     results = Business.query.filter_by(bizname=Business.bizname.ilike('%' + name + '%'))
 
-    if filter_type == 'location':
+    if filter_type == 'location':   
         results = Business.query.filter_by(bizname=name, location=filter_value).filter(Business.bizname.like("%"+ name +"%"))
     
     elif filter_type == 'category':
         results = Business.query.filter_by(bizname=name, category=filter_value).filter(Business.bizname.like("%"+ name +"%"))
     else:
-        return jsonify({'message':'no or unknown filter type passed in query url'}), 400
+        return jsonify({'message':'unknown filter type passed in query url'}), 400
 
     print(results)
     if results.count() > 0:
