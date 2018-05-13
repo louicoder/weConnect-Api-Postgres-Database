@@ -30,10 +30,10 @@ def token_required(f):
             return jsonify({'message ':'Unauthorized access token is missing'}), 401
         try:
             data = jwt.decode(token,SECRET_KEY)
-            current_user = User.query.get(int(data['id']))
+            # current_user = User.query.get(int(data['id']))
         except:
             return jsonify({'message', 'Token is invalid'}), 401
-        return f(current_user, *args, **kwargs)
+        return f(*args, **kwargs)
 
     return decorated
 
@@ -43,7 +43,6 @@ def token_required(f):
 def create_user():
     jsn = request.data
     data = json.loads(jsn)
-    
 
     specialChars = ['@', '#', '$', '%', '^', '&', '*', '!', '/', '?', '-', '_']
     
@@ -116,8 +115,8 @@ def login():
     data = json.loads(jsn)
 
     if logged_in_user:
-        username = logged_in_user['username']
-        return jsonify({'message':'you are already logged in as '+username})
+        # username = logged_in_user['username']
+        return jsonify({'message':'you are already logged in'}), 400
 
     if data:
         if 'username' not in data.keys():
@@ -130,11 +129,12 @@ def login():
         pd=data['password']
 
         token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, SECRET_KEY)
+        
         user = User.query.filter_by(username=un).first()
         if not user:
-            return jsonify({'message':'wrong username or password'}), 400
+            return jsonify({'message':'wrong username or password or user not registered'}), 400
         
-        if check_password_hash(user.password, pd) and user:
+        if check_password_hash(user.password, pd):
             logged_in_user['id']=user.id
             logged_in_user['username'] = user.username
             logged_in_user['password'] = user.password

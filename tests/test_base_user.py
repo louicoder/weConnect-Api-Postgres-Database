@@ -6,18 +6,18 @@ from manage import db
 from flask import request, url_for
 from config import Config
 from run import app
-# from main.user.userViews import userBlueprint
-# from main.business.businessViews import businessBlueprint
-# from main.reviews.reviewViews import reviewBlueprint
+
 
 class BaseTestCase(unittest.TestCase):
     # Set up test variables
     def setUp(self):
         self.app=app
+        
         # initialize the test client
         self.client = self.app.test_client()
 
         with self.app.app_context():
+            db.drop_all()
             # This is the user test json data with a predefined username, password and email
             self.user = {
                 'username': 'louis',
@@ -93,8 +93,25 @@ class BaseTestCase(unittest.TestCase):
                 'email': 'louis.michaelgmail.com'
             }
 
-            # create all tables
+            self.business={
+                'name':'business',
+                'location':'kampala',
+                'category':'technology',
+                'description':'service providers for repair of computers'
+            }
+
+            self.business_name_missing={
+                'location':'kampala',
+                'category':'technology',
+                'description':'service providers for repair of computers'
+            }
+
+            self.business_without_data={}
+
+        
             db.session.close()
             db.drop_all()
             db.create_all()
+
+        
     
