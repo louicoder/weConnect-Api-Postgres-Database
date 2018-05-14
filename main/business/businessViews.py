@@ -48,6 +48,9 @@ def create_business():
     if not logged_in_user:
         return jsonify({'message':'you are not logged in, please login'}), 400 #bad request
 
+    if not logged_in_user:
+        return jsonify({'message':'you are not logged in, please login'}), 400 #bad request
+
     #lets pick the data from json passed
     bizname = data['name']
     userid = logged_in_user['id']
@@ -55,21 +58,32 @@ def create_business():
     category = data['category']
     description = data['description']
 
+<<<<<<< HEAD
     for x in bizname:
         if x in specialChars:
             return jsonify({'message':'business name contains special characters'}), 400
 
+=======
+>>>>>>> 7a51d68e07c24cc8186e75f482256347d05c2182
     
     if Business.query.filter_by(bizname=bizname).count() == 0:
         business = Business(userid, bizname, location, category, description)
         db.session.add(business)
         
         if business:
+<<<<<<< HEAD
             return jsonify({'message':'business has been successfully created'}), 201
         else:
             return jsonify({'message':'business was not created, please try again'}), 400
     else:
         return jsonify({'message':'business already exists, please try again'}), 400
+=======
+            return jsonify({'message':'business has been successfully created'}), 200
+        else:
+            return jsonify({'message':'business was not created, please try again'}), 400
+    else:
+        return jsonify({'message':'business already exists, please try again'})
+>>>>>>> 7a51d68e07c24cc8186e75f482256347d05c2182
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['GET'])
 @swag_from('retrieveBusiness.yml')

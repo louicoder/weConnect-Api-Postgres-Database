@@ -93,6 +93,7 @@ class BaseTestCase(unittest.TestCase):
                 'email': 'louis.michaelgmail.com'
             }
 
+<<<<<<< HEAD:tests/test_base_user.py
             self.business={
                 'name':'business',
                 'location':'kampala',
@@ -106,6 +107,8 @@ class BaseTestCase(unittest.TestCase):
                 'description':'service providers for repair of computers'
             }
 
+=======
+>>>>>>> 7a51d68e07c24cc8186e75f482256347d05c2182:tests/test_base.py
             self.business_without_data={}
 
         

@@ -113,7 +113,7 @@ def login():
     global logged_in_user
     jsn = request.data
     data = json.loads(jsn)
-
+    
     if logged_in_user:
         # username = logged_in_user['username']
         return jsonify({'message':'you are already logged in'}), 400
