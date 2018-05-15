@@ -8,7 +8,7 @@ from config import Config
 from run import app
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseTestUser(unittest.TestCase):
     # Set up test variables
     def setUp(self):
         self.app=app

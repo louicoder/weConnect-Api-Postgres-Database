@@ -1,11 +1,11 @@
 import unittest
-from .test_base_user import BaseTestCase
+from .test_base_user import BaseTestUser
 from flask import request, url_for, json
 from manage import db
 from run import app
 
 
-class Testuser(BaseTestCase):
+class Testuser(BaseTestUser):
 
     def test_username_missing_registration(self):
         response = self.client.post('/api/auth/register', data=json.dumps(self.user_no_username), content_type='application/json')
