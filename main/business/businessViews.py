@@ -13,7 +13,7 @@ businessBlueprint = Blueprint('business', __name__)
 
 @businessBlueprint.route('/api/businesses', methods=['POST'])
 @swag_from('createBusiness.yml')
-@token_required
+# @token_required
 def create_business():
     global logged_in_user
     jsn = request.data
@@ -76,7 +76,7 @@ def create_business():
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['GET'])
 @swag_from('retrieveBusiness.yml')
-@token_required
+# @token_required
 def get_one_business(id):
     biz = Business.query.get(id)
     if biz:
@@ -84,20 +84,45 @@ def get_one_business(id):
     else:
         return jsonify({'message':'no business with that id exists'}), 404
 
-@businessBlueprint.route('/api/businesses', methods=['GET'])
+# route should look like 127.0.0.1:5000/api/businesses?page=<number>&limit=<number> 
+@businessBlueprint.route('/api/businesses', methods=['GET']) 
 @swag_from('retrieveAllBusinesses.yml')
-@token_required
+# @token_required
 def get_all_businesses():
-    businesses = Business.query.all()    
-    if not businesses:
-        return jsonify({'message':'no businesses exist, please register one'}), 404
-    else:
-        return jsonify({"businesses":[business.returnJson() for business in businesses]}), 200
-        
+    # businesses = Business.query.all()
+    # 
+    if request.method == 'GET':
+        try:
+            limit = request.args.get('limit') or 5 # default is 5 in case limit is not set
+            page = request.args.get('page') or 1
+            limit = int(limit)
+            page = int(page)
+            businesses = Business.query.paginate(per_page=limit, page=page, error_out=False)
+            business_list =[]
+            for business in businesses.items:
+                business_obj = {
+                    'id':business.id,
+                    'name':business.bizname,
+                    'userid':business.userid,
+                    'location':business.location,
+                    'category':business.category,
+                    'description':business.description,
+                    'date_created':business.date_created,
+                    'date_modified':business.date_modified,
+                    'per_page':businesses.per_page,
+                    'current_page':businesses.page,
+                    'total':businesses.total
+                }
+                business_list.append(business_obj)
+
+            return jsonify({'message':business_list}), 200
+        except Exception:
+            return jsonify({"message":'limit and page should be integer values'}), 400
+
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['PUT'])
 @swag_from('updateBusiness.yml')
-@token_required
+# @token_required
 def update_business(id):
     global logged_in_user
     jsn = request.data
@@ -116,7 +141,6 @@ def update_business(id):
     userid = logged_in_user['id']
     
     if biz.query.count() > 0 and userid == biz.userid:
-        # print(logged_in_user)
         specialChars = ['@', '#', '$', '%', '^', '&', '*', '!', '/', '?', '-', '_']
         if 'name' in data.keys():
             bizname = data['name']
@@ -168,7 +192,7 @@ def update_business(id):
         
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['DELETE'])
 @swag_from('deleteBusiness.yml')
-@token_required
+# @token_required
 def delete_business(id):
     global logged_in_user    
     biz = Business.query.get(int(id))
@@ -190,49 +214,131 @@ def delete_business(id):
 
 @businessBlueprint.route('/api/businesses/search', methods=['GET'])
 @swag_from('searchBusiness.yml')
-@token_required
+# @token_required
 def search_business():
     name = request.args.get('q')
     filter_type = str(request.args.get('filter_type'))
     filter_value = str(request.args.get('filter_value'))
 
-    # if filter_type == '':
-    #     return jsonify({'message':'filter type missing'}), 400
+    if name == '':
+        return jsonify({'message':'no name to search for'}), 400
+
+    if request.method == 'GET':
+        limit = request.args.get('limit') or 2 # default is 5 in case limit is not set
+        page = request.args.get('page') or 1
+        limit = int(limit)
+        page = int(page)
 
     if filter_value == '':
         return jsonify({'message':'filter value missing'}), 404
 
-    results = Business.query.filter_by(bizname=Business.bizname.ilike('%' + name + '%'))
+    if filter_type == 'location':
+        results = Business.query.filter_by(location=filter_value).filter(Business.bizname.ilike("%"+ name +"%"))
+        businesses = results.paginate(per_page=limit, page=page, error_out=False)
+        business_list =[]
+        for business in businesses.items:
+            business_obj = {
+                'id':business.id,
+                'name':business.bizname,
+                'userid':business.userid,
+                'location':business.location,
+                'category':business.category,
+                'description':business.description,
+                'date_created':business.date_created,
+                'date_modified':business.date_modified,
+                'per_page':businesses.per_page,
+                'current_page':businesses.page,
+                'total':businesses.total
+            }
+            business_list.append(business_obj)
 
-    if filter_type == 'location':   
-        results = Business.query.filter_by(bizname=name, location=filter_value).filter(Business.bizname.like("%"+ name +"%"))
     
     elif filter_type == 'category':
-        results = Business.query.filter_by(bizname=name, category=filter_value).filter(Business.bizname.like("%"+ name +"%"))
+        results = Business.query.filter_by(category=filter_value).filter(Business.bizname.ilike("%"+ name +"%"))
+        businesses = results.paginate(per_page=limit, page=page, error_out=False)
+        business_list =[]
+        for business in businesses.items:
+            business_obj = {
+                'id':business.id,
+                'name':business.bizname,
+                'userid':business.userid,
+                'location':business.location,
+                'category':business.category,
+                'description':business.description,
+                'date_created':business.date_created,
+                'date_modified':business.date_modified,
+                'per_page':businesses.per_page,
+                'current_page':businesses.page,
+                'total':businesses.total
+            }
+            business_list.append(business_obj)
     else:
-        return jsonify({'message':'none or unknown filter type passed in query url'}), 400
+        return jsonify({'message':'unknown filter type passed in query url'}), 400
 
-    if results.count() > 0:
-        return jsonify({'businesses':[res.returnJson() for res in results]}), 200
+    if len(business_list) > 0:
+        return jsonify({'businesses':business_list}), 200
     else:
         return jsonify({'message':'no businesses match your search'}), 404
 
 
 @businessBlueprint.route('/api/businesses/filter', methods=['GET'])
 @swag_from('filterBusiness.yml')
-@token_required
+# @token_required
 def filter_business():
     filter_type = str(request.args.get('filter_type'))
     filter_value = str(request.args.get('filter_value'))
 
+    if request.method == 'GET':
+        limit = request.args.get('limit') or 2 # default is 5 in case limit is not set
+        page = request.args.get('page') or 1
+        limit = int(limit)
+        page = int(page)
+
     if filter_type == 'location':
         results = Business.query.filter_by(location=filter_value)
+        businesses = results.paginate(per_page=limit, page=page, error_out=False)
+        business_list =[]
+        for business in businesses.items:
+            business_obj = {
+                'id':business.id,
+                'name':business.bizname,
+                'userid':business.userid,
+                'location':business.location,
+                'category':business.category,
+                'description':business.description,
+                'date_created':business.date_created,
+                'date_modified':business.date_modified,
+                'per_page':businesses.per_page,
+                'current_page':businesses.page,
+                'total':businesses.total
+            }
+            business_list.append(business_obj)
+
     elif filter_type == 'category':
         results = Business.query.filter_by(category=filter_value)
+        businesses = results.paginate(per_page=limit, page=page, error_out=False)
+        business_list =[]
+        for business in businesses.items:
+            business_obj = {
+                'id':business.id,
+                'name':business.bizname,
+                'userid':business.userid,
+                'location':business.location,
+                'category':business.category,
+                'description':business.description,
+                'date_created':business.date_created,
+                'date_modified':business.date_modified,
+                'per_page':businesses.per_page,
+                'current_page':businesses.page,
+                'total':businesses.total
+            }
+            business_list.append(business_obj)
     else:
         return jsonify({'message':'invalid or unknown filter type passed in query url'}), 400
 
-    if not results:
-        return jsonify({"message":"no businesses registered with that filter"}), 404
+    if len(business_list) > 0:
+        return jsonify({"message":business_list}), 200
+    else:
+        return jsonify({"message":'no business found'}), 200
 
-    return jsonify({"businesses":[business.returnJson() for business in results]}), 200
+    # return jsonify({"businesses":[business.returnJson() for business in results]}), 200

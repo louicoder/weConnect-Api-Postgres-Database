@@ -17,7 +17,6 @@ def create_review(id):
 
     #check whether business exists before creating review
     exists = Review.check_business_exists(id)
-    print(exists.id)
     
     if exists:
         userid= exists.userid
@@ -28,7 +27,7 @@ def create_review(id):
             db.session.commit()
             return jsonify({'message':'review has been successfully created'}), 200
         else:
-            return jsonify({'message':'missing field - review'}), 400
+            return jsonify({'message':'missing field, review'}), 400
     else:
         return jsonify({'message':'no business with that id exists'}), 404
 
@@ -38,7 +37,6 @@ def create_review(id):
 @token_required
 def get_all_reviews(id):
     reviews = Review.query.filter_by(bizid=id)
-    # print(reviews)
     if reviews.count() != 0:
         return jsonify({'reviews':[review.returnJson() for review in reviews]}), 200
     else:
