@@ -106,6 +106,13 @@ class BaseTestCase(unittest.TestCase):
                 'description':'service providers for repair of computers'
             }
 
+            self.business_update={
+                'name':'business',
+                'location':'kampala',
+                'category':'technology',
+                'description':'service providers for repair of computers'
+            }
+
             self.business_without_data={}
 
         

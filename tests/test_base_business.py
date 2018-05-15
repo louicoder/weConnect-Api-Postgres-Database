@@ -37,8 +37,24 @@ class BaseTestBusiness(unittest.TestCase):
                 'password': 'password',
             }
 
+            self.user_login2 = {
+                'username': 'user1',
+                'password': 'password',
+            }
+
             self.user_login = {
                 'username': 'xuser',
+                'password': 'password',
+            }
+
+            self.user2 = {
+                'username': 'user2',
+                'password': 'password',
+                'email': 'louis.michael@gmail.com'
+            }
+
+            self.user2_login = {
+                'username': 'user2',
                 'password': 'password',
             }
 
@@ -56,6 +72,13 @@ class BaseTestBusiness(unittest.TestCase):
 
             self.business={
                 'name':'business',
+                'location':'kampala',
+                'category':'technology',
+                'description':'service providers for repair of computers'
+            }
+
+            self.business_update={
+                'name':'newbiz',
                 'location':'kampala',
                 'category':'technology',
                 'description':'service providers for repair of computers'
@@ -108,6 +131,27 @@ class BaseTestBusiness(unittest.TestCase):
 
             self.long_business_name={
                 'name':'longbusinessname',
+                'location':'kampala',
+                'category':'technology',
+                'description':'service providers for repair of computers'
+            }
+
+            self.business_update_long_name={
+                'name':'updatebusinesslongname',
+                'location':'kampala',
+                'category':'technology',
+                'description':'service providers for repair of computers'
+            }
+
+            self.business_update_short_name={
+                'name':'name',
+                'location':'kampala',
+                'category':'technology',
+                'description':'service providers for repair of computers'
+            }
+
+            self.business_with_special_characters={
+                'name':'name',
                 'location':'kampala',
                 'category':'technology',
                 'description':'service providers for repair of computers'

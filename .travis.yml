@@ -22,6 +22,7 @@ before_script:
 
 #script to run tests
 script:
+  # - nose2 tests --with-coverage 
   - nosetests --with-coverage --cover-tests  --cover-package=tests
   - coverage report
 

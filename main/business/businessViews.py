@@ -105,21 +105,31 @@ def update_business(id):
     biz = Business.query.get(int(id))    
     
     if not logged_in_user:
-        return jsonify({"message":"please login"})
+        return jsonify({"message":"please login"}), 401
 
     if len(data.keys()) == 0:
         return jsonify({'message':'no information was provided for update'}), 400
 
-    # if 'id' not in logged_in_user.keys():
-    #     return jsonify({"message":"missing userid, cannot update business"})
+    if not biz:
+        return jsonify({'message':'no business with that id exists'}), 400
 
     userid = logged_in_user['id']
     
     if biz.query.count() > 0 and userid == biz.userid:
         # print(logged_in_user)
-
+        specialChars = ['@', '#', '$', '%', '^', '&', '*', '!', '/', '?', '-', '_']
         if 'name' in data.keys():
             bizname = data['name']
+
+            if len(bizname) < 5:
+                return jsonify({'message':'name of business is too short, should between five and ten characters'}), 400 #bad request
+
+            if len(bizname) > 10:
+                return jsonify({'message':'name of business is too long, should between five and ten characters'}), 400 #bad request
+
+            for x in bizname:
+                if x in specialChars:
+                    return jsonify({'message':'business name contains special characters'}), 400
         else:
             bizname = ''
 
@@ -158,7 +168,7 @@ def update_business(id):
         
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['DELETE'])
 @swag_from('deleteBusiness.yml')
-# @token_required
+@token_required
 def delete_business(id):
     global logged_in_user    
     biz = Business.query.get(int(id))
@@ -166,32 +176,31 @@ def delete_business(id):
     if not logged_in_user:
         return jsonify({"message": "please login"}), 400
 
-    userid = logged_in_user['id']
-    
+    userid = logged_in_user['id']    
     if biz:
         if str(userid) == str(biz.id):
             db.session.delete(biz)
             db.session.commit()
-            return jsonify({'message':'business was deleted successfully'})
+            return jsonify({'message':'business was deleted successfully'}), 200
         else:
-            return jsonify({'message':'business was not deleted because you are not the owner'})
+            return jsonify({'message':'business was not deleted because you are not the owner'}), 400
     else:
-        return jsonify({'message':'no business with that id exists'})
+        return jsonify({'message':'no business with that id exists'}), 400
 
 
 @businessBlueprint.route('/api/businesses/search', methods=['GET'])
 @swag_from('searchBusiness.yml')
-# @token_required
+@token_required
 def search_business():
     name = request.args.get('q')
     filter_type = str(request.args.get('filter_type'))
     filter_value = str(request.args.get('filter_value'))
 
-    if not filter_type:
-        return jsonify({'message':'filter type missing'}), 400
+    # if filter_type == '':
+    #     return jsonify({'message':'filter type missing'}), 400
 
-    if not filter_value:
-        return jsonify({'message':'filter value missing'}), 400
+    if filter_value == '':
+        return jsonify({'message':'filter value missing'}), 404
 
     results = Business.query.filter_by(bizname=Business.bizname.ilike('%' + name + '%'))
 
@@ -201,11 +210,9 @@ def search_business():
     elif filter_type == 'category':
         results = Business.query.filter_by(bizname=name, category=filter_value).filter(Business.bizname.like("%"+ name +"%"))
     else:
-        return jsonify({'message':'unknown filter type passed in query url'}), 400
+        return jsonify({'message':'none or unknown filter type passed in query url'}), 400
 
-    print(results)
     if results.count() > 0:
-        print(results)
         return jsonify({'businesses':[res.returnJson() for res in results]}), 200
     else:
         return jsonify({'message':'no businesses match your search'}), 404
@@ -213,7 +220,7 @@ def search_business():
 
 @businessBlueprint.route('/api/businesses/filter', methods=['GET'])
 @swag_from('filterBusiness.yml')
-# @token_required
+@token_required
 def filter_business():
     filter_type = str(request.args.get('filter_type'))
     filter_value = str(request.args.get('filter_value'))

@@ -119,33 +119,88 @@ class TestBusiness(BaseTestBusiness):
         self.assertIn('businesses', result)
         self.assertEqual(200, response.status_code)
 
-    # def test_update_business_failed(self):
-    #     pass
+    def test_update_business_long_name(self):
+        self.client.post('/api/businesses', data=json.dumps(self.business), content_type='application/json', headers={'x-access-token': self.token})
 
-    # def test_update_business_success(self):
-    #     pass
+        response = self.client.put('/api/businesses/1', data=json.dumps(self.business_update_long_name), content_type='application/json', headers={'x-access-token': self.token})
+        
+        data = json.loads(response.data.decode())
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('name of business is too long, should between five and ten characters', data['message'])
 
-    # def test_delete_business_without_login(self):
-    #     pass
+    def test_update_business_short_name(self):
+        self.client.post('/api/businesses', data=json.dumps(self.business), content_type='application/json', headers={'x-access-token': self.token})
 
-    # def test_delete_business_not_owned(self):
-    #     pass
+        response = self.client.put('/api/businesses/1', data=json.dumps(self.business_update_short_name), content_type='application/json', headers={'x-access-token': self.token})
+        
+        data = json.loads(response.data.decode())
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('name of business is too short, should between five and ten characters', data['message'])
 
-    # def test_delete_business_failed_bad_id(self):
-    #     pass
+    def test_update_business_special_characters(self):
+        self.client.post('/api/businesses', data=json.dumps(self.business), content_type='application/json', headers={'x-access-token': self.token})
 
-    # def test_delete_business_success(self):
-    #     pass
+        response = self.client.put('/api/businesses/1', data=json.dumps(self.business_with_special_characters), content_type='application/json', headers={'x-access-token': self.token})
+        
+        data = json.loads(response.data.decode())
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('name of business is too short, should between five and ten characters', data['message'])
 
-    # def test_search_business_without_filter_type(self):
-    #     pass
+    def test_delete_business_without_login(self):
+        self.client.post('/api/auth/logout', content_type='application/json', headers={'x-access-token': self.token}) 
 
-    # def test_search_business_without_filter_value(self):
-    #     pass
+        response = self.client.delete('/api/businesses/1', data=json.dumps(self.business_with_special_characters), content_type='application/json')
+        data  = json.loads(response.data.decode())
+
+        self.assertEqual(401, response.status_code)
+        self.assertEqual('Token not valid', data['message'])
+
+    def test_delete_business_not_owned(self):
+        pass
+
+    def test_delete_business_failed_bad_id(self):
+        response = self.client.delete('/api/businesses/12', data=json.dumps(self.business_with_special_characters), content_type='application/json', headers={'x-access-token': self.token})
+        data  = json.loads(response.data.decode())
+
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('no business with that id exists', data['message'])
+
+    def test_delete_business_success(self):
+        self.client.post('/api/businesses', data=json.dumps(self.business), content_type='application/json', headers={'x-access-token': self.token})
+
+        response = self.client.delete('/api/businesses/1', data=json.dumps(self.business_with_special_characters), content_type='application/json', headers={'x-access-token': self.token})
+        data  = json.loads(response.data.decode())
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('business was deleted successfully', data['message'])
+
+    def test_search_business_without_filter_type(self):
+        response = self.client.get('/api/businesses/search?q=business&&filter_value=kampala', data=json.dumps(self.business), content_type='application/json', headers={'x-access-token': self.token})
+
+        data  = json.loads(response.data.decode())
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('none or unknown filter type passed in query url', data['message'])
+
+
+    def test_search_business_without_filter_value(self):
+        response = self.client.get('/api/businesses/search?q=business&&filter_type=location', data=json.dumps(self.business), content_type='application/json', headers={'x-access-token': self.token})
+
+        data  = json.loads(response.data.decode())
+        self.assertEqual(404, response.status_code)
+        self.assertEqual('no businesses match your search', data['message'])
 
     # def test_unknown_search_filter(self):
     #     pass
 
+    # def test_update_business_without_login(self):
+    #     self.client.post('/api/businesses', data=json.dumps(self.business), content_type='application/json', headers={'x-access-token': self.token})
+
+    #     self.client.post('/api/auth/logout', content_type='application/json')
+
+    #     response = self.client.put('/api/businesses/1', data=json.dumps(self.business_update), content_type='application/json', headers={'x-access-token': self.token})
+        
+    #     data = json.loads(response.data.decode())
+    #     self.assertEqual(400, response.status_code)
+    #     self.assertEqual('please login', data['message'])
 
 
 if __name__ == 'main':
