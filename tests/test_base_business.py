@@ -160,7 +160,4 @@ class BaseTestBusiness(unittest.TestCase):
             # db.session.close()
             # db.drop_all()
             # db.create_all()
-            
-
-        
     
