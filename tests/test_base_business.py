@@ -37,6 +37,11 @@ class BaseTestBusiness(unittest.TestCase):
                 'password': 'password',
             }
 
+            self.user_login2 = {
+                'username': 'user1',
+                'password': 'password',
+            }
+
             self.user_login = {
                 'username': 'xuser',
                 'password': 'password',
@@ -113,10 +118,14 @@ class BaseTestBusiness(unittest.TestCase):
                 'description':'service providers for repair of computers'
             }
 
+            self.business_update={
+                'name':'business_updated',
+                'location':'kampala',
+                'category':'technology',
+                'description':'service providers for repair of computers'
+            }
+
             # db.session.close()
             # db.drop_all()
             # db.create_all()
-            
-
-        
     

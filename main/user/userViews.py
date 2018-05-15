@@ -172,7 +172,7 @@ def reset_password():
 
 @userBlueprint.route('/api/auth/logout', methods=['POST'])
 @swag_from('logoutUser.yml')
-# @token_required
+@token_required
 def logout():    
     # 
     global logged_in_user

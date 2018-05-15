@@ -105,13 +105,13 @@ def update_business(id):
     biz = Business.query.get(int(id))    
     
     if not logged_in_user:
-        return jsonify({"message":"please login"})
+        return jsonify({"message":"please login"}), 401
 
     if len(data.keys()) == 0:
         return jsonify({'message':'no information was provided for update'}), 400
 
-    # if 'id' not in logged_in_user.keys():
-    #     return jsonify({"message":"missing userid, cannot update business"})
+    if not biz:
+        return jsonify({'message':'no business with that id exists'}), 400
 
     userid = logged_in_user['id']
     

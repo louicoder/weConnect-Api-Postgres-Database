@@ -119,8 +119,17 @@ class TestBusiness(BaseTestBusiness):
         self.assertIn('businesses', result)
         self.assertEqual(200, response.status_code)
 
-    # def test_update_business_failed(self):
-    #     pass
+    def test_update_business_without_login(self):
+        self.client.post('/api/auth/logout', content_type='application/json')
+        response = self.client.put('/api/businesses/1', data=json.dumps(self.business_update), content_type='application/json', headers={'x-access-token': self.token})
+        
+        data = json.loads(response.data.decode())
+        self.assertEqual(401, response.status_code)
+        self.assertEqual('please login', data['message'])
+
+        self.client.post('/api/auth/logout', content_type='application/json')
+
+
 
     # def test_update_business_success(self):
     #     pass
