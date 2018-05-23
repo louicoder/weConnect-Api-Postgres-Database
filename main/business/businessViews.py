@@ -52,19 +52,19 @@ def create_business():
         return jsonify({'message':'you are not logged in, please login'}), 400 #bad request
 
     #lets pick the data from json passed
-    bizname = data['name']
+    business_name = data['name']
     userid = logged_in_user['id']
     location =data['location']
     category = data['category']
     description = data['description']
 
-    for x in bizname:
+    for x in business_name:
         if x in specialChars:
             return jsonify({'message':'business name contains special characters'}), 400
 
     
-    if Business.query.filter_by(bizname=bizname).count() == 0:
-        business = Business(userid, bizname, location, category, description)
+    if Business.query.filter_by(business_name=business_name).count() == 0:
+        business = Business(userid, business_name, location, category, description)
         db.session.add(business)
         
         if business:
@@ -102,7 +102,7 @@ def get_all_businesses():
             for business in businesses.items:
                 business_obj = {
                     'id':business.id,
-                    'name':business.bizname,
+                    'name':business.business_name,
                     'userid':business.userid,
                     'location':business.location,
                     'category':business.category,
@@ -143,19 +143,19 @@ def update_business(id):
     if biz.query.count() > 0 and userid == biz.userid:
         specialChars = ['@', '#', '$', '%', '^', '&', '*', '!', '/', '?', '-', '_']
         if 'name' in data.keys():
-            bizname = data['name']
+            business_name = data['name']
 
-            if len(bizname) < 5:
+            if len(business_name) < 5:
                 return jsonify({'message':'name of business is too short, should between five and ten characters'}), 400 #bad request
 
-            if len(bizname) > 10:
+            if len(business_name) > 10:
                 return jsonify({'message':'name of business is too long, should between five and ten characters'}), 400 #bad request
 
-            for x in bizname:
+            for x in business_name:
                 if x in specialChars:
                     return jsonify({'message':'business name contains special characters'}), 400
         else:
-            bizname = ''
+            business_name = ''
 
         if 'location' in data.keys():
             location =data['location']
@@ -172,8 +172,8 @@ def update_business(id):
         else:
             description = ''        
             
-        if bizname:
-            biz.bizname = bizname
+        if business_name:
+            biz.business_name = business_name
         if location:
             biz.location = location
         if category:
@@ -182,7 +182,7 @@ def update_business(id):
             biz.description = description   
 
         biz.date_modified = datetime.now()
-        print([bizname, location, category, description])
+        print([business_name, location, category, description])
         db.session.add(biz)
         db.session.commit()
         return jsonify({'message':'business has been updated successfully'}), 200
@@ -233,13 +233,13 @@ def search_business():
         return jsonify({'message':'filter value missing'}), 404
 
     if filter_type == 'location':
-        results = Business.query.filter_by(location=filter_value).filter(Business.bizname.ilike("%"+ name +"%"))
+        results = Business.query.filter_by(location=filter_value).filter(Business.business_name.ilike("%"+ name +"%"))
         businesses = results.paginate(per_page=limit, page=page, error_out=False)
         business_list =[]
         for business in businesses.items:
             business_obj = {
                 'id':business.id,
-                'name':business.bizname,
+                'name':business.business_name,
                 'userid':business.userid,
                 'location':business.location,
                 'category':business.category,
@@ -254,74 +254,13 @@ def search_business():
 
     
     elif filter_type == 'category':
-        results = Business.query.filter_by(category=filter_value).filter(Business.bizname.ilike("%"+ name +"%"))
+        results = Business.query.filter_by(category=filter_value).filter(Business.business_name.ilike("%"+ name +"%"))
         businesses = results.paginate(per_page=limit, page=page, error_out=False)
         business_list =[]
         for business in businesses.items:
             business_obj = {
                 'id':business.id,
-                'name':business.bizname,
-                'userid':business.userid,
-                'location':business.location,
-                'category':business.category,
-                'description':business.description,
-                'date_created':business.date_created,
-                'date_modified':business.date_modified,
-                'per_page':businesses.per_page,
-                'current_page':businesses.page,
-                'total':businesses.total
-            }
-            business_list.append(business_obj)
-    else:
-        return jsonify({'message':'unknown filter type passed in query url'}), 400
-
-    if len(business_list) > 0:
-        return jsonify({'businesses':business_list}), 200
-    else:
-        return jsonify({'message':'no businesses match your search'}), 404
-
-
-@businessBlueprint.route('/api/businesses/filter', methods=['GET'])
-@swag_from('filterBusiness.yml')
-# @token_required
-def filter_business():
-    filter_type = str(request.args.get('filter_type'))
-    filter_value = str(request.args.get('filter_value'))
-
-    if request.method == 'GET':
-        limit = request.args.get('limit') or 2 # default is 5 in case limit is not set
-        page = request.args.get('page') or 1
-        limit = int(limit)
-        page = int(page)
-
-    if filter_type == 'location':
-        results = Business.query.filter_by(location=filter_value)
-        businesses = results.paginate(per_page=limit, page=page, error_out=False)
-        business_list =[]
-        for business in businesses.items:
-            business_obj = {
-                'id':business.id,
-                'name':business.bizname,
-                'userid':business.userid,
-                'location':business.location,
-                'category':business.category,
-                'description':business.description,
-                'date_created':business.date_created,
-                'date_modified':business.date_modified,
-                'per_page':businesses.per_page,
-                'current_page':businesses.page,
-                'total':businesses.total
-            }
-            business_list.append(business_obj)
-
-    elif filter_type == 'category':
-        results = Business.query.filter_by(category=filter_value)
-        businesses = results.paginate(per_page=limit, page=page, error_out=False)
-        business_list =[]
-        for business in businesses.items:
-            business_obj = {
-                'id':business.id,
-                'name':business.bizname,
+                'name':business.business_name,
                 'userid':business.userid,
                 'location':business.location,
                 'category':business.category,
@@ -337,8 +276,69 @@ def filter_business():
         return jsonify({'message':'invalid or unknown filter type passed in query url'}), 400
 
     if len(business_list) > 0:
+        return jsonify({'businesses':business_list}), 200
+    else:
+        return jsonify({'message':'no businesses match your search'}), 404
+
+
+@businessBlueprint.route('/api/businesses/filter', methods=['GET'])
+@swag_from('filterBusiness.yml')
+# @token_required
+def filter_business():
+    filter = str(request.args.get('filter'))
+    filter_value = str(request.args.get('filter_value'))
+
+    if request.method == 'GET':
+        limit = request.args.get('limit') or 2 # default is 2 in case limit is not set
+        page = request.args.get('page') or 1
+        limit = int(limit)
+        page = int(page)
+
+    if filter == 'location':
+        results = Business.query.filter_by(location=filter_value)
+        businesses = results.paginate(per_page=limit, page=page, error_out=False)
+        business_list =[]
+        for business in businesses.items:
+            business_obj = {
+                'id':business.id,
+                'name':business.business_name,
+                'userid':business.userid,
+                'location':business.location,
+                'category':business.category,
+                'description':business.description,
+                'date_created':business.date_created,
+                'date_modified':business.date_modified,
+                'per_page':businesses.per_page,
+                'current_page':businesses.page,
+                'total':businesses.total
+            }
+            business_list.append(business_obj)
+
+    elif filter == 'category':
+        results = Business.query.filter_by(category=filter_value)
+        businesses = results.paginate(per_page=limit, page=page, error_out=False)
+        business_list =[]
+        for business in businesses.items:
+            business_obj = {
+                'id':business.id,
+                'name':business.business_name,
+                'userid':business.userid,
+                'location':business.location,
+                'category':business.category,
+                'description':business.description,
+                'date_created':business.date_created,
+                'date_modified':business.date_modified,
+                'per_page':businesses.per_page,
+                'current_page':businesses.page,
+                'total':businesses.total
+            }
+            business_list.append(business_obj)
+    else:
+        return jsonify({'message':'invalid or unknown filter type passed in query url'}), 400
+    print(business_list)
+    if len(business_list) > 0:
         return jsonify({"message":business_list}), 200
     else:
-        return jsonify({"message":'no business found'}), 200
+        return jsonify({"message":'no businesses found'}), 404
 
     # return jsonify({"businesses":[business.returnJson() for business in results]}), 200

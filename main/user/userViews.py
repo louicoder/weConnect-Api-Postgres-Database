@@ -5,7 +5,7 @@ import sys, os
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
 from functools import wraps
-from ..appModels import db, User, BlackList, BlackList
+from ..appModels import db, User
 
 # from run import SECRET_KEY
 

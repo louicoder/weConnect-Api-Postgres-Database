@@ -31,7 +31,7 @@ class Business(db.Model):
     """Business class handles all the business details"""
     __tablename__ = 'businesses'
     id = db.Column(db.Integer, primary_key = True)
-    bizname = db.Column(db.String(50), nullable=False)
+    business_name = db.Column(db.String(50), nullable=False)
     userid = db.Column(db.Integer, db.ForeignKey('users.id'))
     location = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
@@ -40,8 +40,8 @@ class Business(db.Model):
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
     reviews = db.relationship('Review', backref='business', lazy='dynamic', cascade='all, delete-orphan')
 
-    def __init__(self, userid, bizname, location, category, description):
-        self.bizname = bizname
+    def __init__(self, userid, business_name, location, category, description):
+        self.business_name = business_name
         self.userid = userid
         self.location= location
         self.category = category
@@ -50,10 +50,10 @@ class Business(db.Model):
         # self.date_modified = date_modified
 
     def __repr__(self):
-        return '<Business {}>'.format(self.bizname)
+        return '<Business {}>'.format(self.business_name)
 
     def returnJson(self):
-        businessJsonFormat = {'id':self.id, 'bizName':self.bizname, 'userId':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
+        businessJsonFormat = {'id':self.id, 'business_name':self.business_name, 'userId':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
         return businessJsonFormat
 
     
@@ -64,15 +64,15 @@ class Review(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     review = db.Column(db.Text, nullable=False)
     userid = db.Column(db.Integer, db.ForeignKey('users.id'))
-    bizid = db.Column(db.Integer, db.ForeignKey('businesses.id'))
+    business_id = db.Column(db.Integer, db.ForeignKey('businesses.id'))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def __init__(self, review, userid, bizid):
+    def __init__(self, review, userid, business_id):
         # self.id = id
         self.review = review
         self.userid = userid
-        self.bizid = bizid
+        self.business_id = business_id
         # self.date_created= date_created
         # self.date_modified = date_modified
 
@@ -86,25 +86,25 @@ class Review(db.Model):
         if biz:
             return biz
         else:
-            return Noned
+            return None
 
     def returnJson(self):
-        reviewJsonFormat = {'id':self.id, 'userid':self.userid, 'bizid':self.bizid, 'Author':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
+        reviewJsonFormat = {'id':self.id, 'userid':self.userid, 'business_id':self.business_id, 'Author':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
         return reviewJsonFormat
 
 
-class BlackList(db.Model):
-    """class for blacklisted tokens"""
-    __tablename__ = 'blacklist'
-    id = db.Column(db.Integer, primary_key=True)
-    token = db.Column(db.String(256), nullable=False, unique=True)
+# class BlackList(db.Model):
+#     """class for blacklisted tokens"""
+#     __tablename__ = 'blacklist'
+#     id = db.Column(db.Integer, primary_key=True)
+#     token = db.Column(db.String(256), nullable=False, unique=True)
 
-    def __init__(self, token):
-        self.token = token
+#     def __init__(self, token):
+#         self.token = token
 
-    def __repr__(self):
-        return '<Token {}>'.format(self.token)
+#     def __repr__(self):
+#         return '<Token {}>'.format(self.token)
 
-    def returnJson(self):
-        tokenJsonformat = {'token':self.token}
-        return tokenJsonformat
+#     def returnJson(self):
+#         tokenJsonformat = {'token':self.token}
+#         return tokenJsonformat

@@ -6,6 +6,7 @@ from .business.businessViews import businessBlueprint
 from .reviews.reviewViews import reviewBlueprint
 from flasgger import Swagger
 from flasgger import swag_from
+from .appModels import db, Business, User, Review
 
 
 app = Flask(__name__)
