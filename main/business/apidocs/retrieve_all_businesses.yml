@@ -69,7 +69,7 @@ Endpoint retrieving a list of all registered businesses
         "id": 2, 
         "location": "locationy", 
         "name": "businessy", 
-        "userid": 2
+        "user_id": 2
         }]]
     404:
       description: No existing businesses

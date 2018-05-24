@@ -54,7 +54,7 @@ Endpoint retrieving a single business
         "id": 1, 
         "location": "locationx", 
         "name": "businessx", 
-        "userid": 1
+        "user_id": 1
       }]
     404:
       description: No businesses registered with that id currently

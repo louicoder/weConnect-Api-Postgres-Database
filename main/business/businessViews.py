@@ -12,7 +12,7 @@ from flask_paginate import Pagination, get_page_args, get_page_parameter
 businessBlueprint = Blueprint('business', __name__)
 
 @businessBlueprint.route('/api/businesses', methods=['POST'])
-# @swag_from('create_business.yml')
+# @swag_from('apidocs/create_business.yml')
 @token_required
 def create_business():
     global logged_in_user
@@ -50,7 +50,7 @@ def create_business():
 
     #lets pick the data from json passed
     business_name = data['name']
-    userid = logged_in_user['id']
+    user_id = logged_in_user['id']
     location =data['location']
     category = data['category']
     description = data['description']
@@ -61,7 +61,7 @@ def create_business():
 
     
     if Business.query.filter_by(business_name=business_name).count() == 0:
-        business = Business(userid, business_name, location, category, description)
+        business = Business(user_id, business_name, location, category, description)
         db.session.add(business)
         
         if business:
@@ -99,7 +99,7 @@ def get_all_businesses():
                 business_obj = {
                     'id':business.id,
                     'name':business.business_name,
-                    'userid':business.userid,
+                    'user_id':business.user_id,
                     'location':business.location,
                     'category':business.category,
                     'description':business.description,
@@ -134,9 +134,9 @@ def update_business(id):
     if not biz:
         return jsonify({'message':'no business with that id exists'}), 400
 
-    userid = logged_in_user['id']
+    user_id = logged_in_user['id']
     
-    if biz.query.count() > 0 and userid == biz.userid:
+    if biz.query.count() > 0 and user_id == biz.user_id:
         specialChars = ['@', '#', '$', '%', '^', '&', '*', '!', '/', '?', '-', '_']
         if 'name' in data.keys():
             business_name = data['name']
@@ -196,9 +196,9 @@ def delete_business(id):
     if not logged_in_user:
         return jsonify({"message": "please login"}), 400
 
-    userid = logged_in_user['id']    
+    user_id = logged_in_user['id']    
     if biz:
-        if str(userid) == str(biz.id):
+        if str(user_id) == str(biz.id):
             db.session.delete(biz)
             db.session.commit()
             return jsonify({'message':'business was deleted successfully'}), 200
@@ -236,7 +236,7 @@ def search_business():
             business_obj = {
                 'id':business.id,
                 'name':business.business_name,
-                'userid':business.userid,
+                'user_id':business.user_id,
                 'location':business.location,
                 'category':business.category,
                 'description':business.description,
@@ -257,7 +257,7 @@ def search_business():
             business_obj = {
                 'id':business.id,
                 'name':business.business_name,
-                'userid':business.userid,
+                'user_id':business.user_id,
                 'location':business.location,
                 'category':business.category,
                 'description':business.description,
@@ -298,7 +298,7 @@ def filter_business():
             business_obj = {
                 'id':business.id,
                 'name':business.business_name,
-                'userid':business.userid,
+                'user_id':business.user_id,
                 'location':business.location,
                 'category':business.category,
                 'description':business.description,
@@ -318,7 +318,7 @@ def filter_business():
             business_obj = {
                 'id':business.id,
                 'name':business.business_name,
-                'userid':business.userid,
+                'user_id':business.user_id,
                 'location':business.location,
                 'category':business.category,
                 'description':business.description,

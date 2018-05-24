@@ -27,13 +27,13 @@ WeConnect-Api provides a platform that brings businesses and individuals togethe
 | GET | api/businesses/_<businessId>_/reviews | Get all reviews for a business |
 
 
-### __Technologies used to develop this site__
+### __Technologies used to develop and test this app__
 1. Python
-2. Postgres Database
+2. Postgresql DBMS
 3. Postman
 4. VSCODE (for editing and debugging)
 
-### __Project dependencies Will always be found in the file below__
+### __Project dependencies will always be found in the file below__
     requirements.txt
 
 ### __Set up project to get it up and running__

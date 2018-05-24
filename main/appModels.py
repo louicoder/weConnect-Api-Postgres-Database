@@ -32,7 +32,7 @@ class Business(db.Model):
     __tablename__ = 'businesses'
     id = db.Column(db.Integer, primary_key = True)
     business_name = db.Column(db.String(50), nullable=False)
-    userid = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     location = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -40,9 +40,9 @@ class Business(db.Model):
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
     reviews = db.relationship('Review', backref='business', lazy='dynamic', cascade='all, delete-orphan')
 
-    def __init__(self, userid, business_name, location, category, description):
+    def __init__(self, user_id, business_name, location, category, description):
         self.business_name = business_name
-        self.userid = userid
+        self.user_id = user_id
         self.location= location
         self.category = category
         self.description = description
@@ -53,7 +53,7 @@ class Business(db.Model):
         return '<Business {}>'.format(self.business_name)
 
     def returnJson(self):
-        businessJsonFormat = {'id':self.id, 'business_name':self.business_name, 'userId':self.userid, 'location':self.location, 'category':self.category, 'description':self.description}
+        businessJsonFormat = {'id':self.id, 'business_name':self.business_name, 'userId':self.user_id, 'location':self.location, 'category':self.category, 'description':self.description}
         return businessJsonFormat
 
     
@@ -63,15 +63,15 @@ class Review(db.Model):
     __tablename__ = 'reviews'
     id = db.Column(db.Integer, primary_key = True)
     review = db.Column(db.Text, nullable=False)
-    userid = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     business_id = db.Column(db.Integer, db.ForeignKey('businesses.id'))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def __init__(self, review, userid, business_id):
+    def __init__(self, review, user_id, business_id):
         # self.id = id
         self.review = review
-        self.userid = userid
+        self.user_id = user_id
         self.business_id = business_id
         # self.date_created= date_created
         # self.date_modified = date_modified
@@ -89,5 +89,5 @@ class Review(db.Model):
             return None
 
     def returnJson(self):
-        reviewJsonFormat = {'id':self.id, 'userid':self.userid, 'business_id':self.business_id, 'Author':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
+        reviewJsonFormat = {'id':self.id, 'user_id':self.user_id, 'business_id':self.business_id, 'Author':User.query.get(self.user_id).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
         return reviewJsonFormat
