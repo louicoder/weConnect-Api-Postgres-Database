@@ -3,7 +3,7 @@ import flask
 from flask import Flask, redirect
 from .user.userViews import userBlueprint
 from .business.businessViews import businessBlueprint
-from .reviews.reviewViews import reviewBlueprint
+from .reviews.review_views import reviewBlueprint
 from flasgger import Swagger
 from flasgger import swag_from
 from .appModels import db, Business, User, Review
