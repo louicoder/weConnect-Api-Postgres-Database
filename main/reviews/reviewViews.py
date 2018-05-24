@@ -34,8 +34,8 @@ def create_review(id):
 
 
 @reviewBlueprint.route('/api/businesses/<int:id>/reviews', methods=['GET'])
-@swag_from('retrieveReviews.yml')
-# @token_required
+# @swag_from('retrieveReviews.yml')
+@token_required
 def get_all_reviews(id):
     
     if request.method == 'GET':

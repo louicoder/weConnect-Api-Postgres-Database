@@ -104,7 +104,7 @@ class TestBusiness(BaseTestBusiness):
         response = self.client.get('/api/businesses', content_type='application/json', headers={'x-access-token': self.token})
 
         result = json.loads(response.data.decode())
-        self.assertEqual('no businesses exist, please register one', result['message'])
+        self.assertEqual(result['businesses'], [])
 
     def test_retrieve_all_businesses_success(self):
         self.client.post('/api/businesses', data=json.dumps(self.business), content_type='application/json', headers={'x-access-token': self.token})
@@ -116,7 +116,7 @@ class TestBusiness(BaseTestBusiness):
         response = self.client.get('/api/businesses', content_type='application/json', headers={'x-access-token': self.token})
 
         result = json.loads(response.data.decode())        
-        self.assertIn('businesses', result)
+        self.assertIsNotNone(result)
         self.assertEqual(200, response.status_code)
 
     def test_update_business_long_name(self):
@@ -178,7 +178,7 @@ class TestBusiness(BaseTestBusiness):
 
         data  = json.loads(response.data.decode())
         self.assertEqual(400, response.status_code)
-        self.assertEqual('none or unknown filter type passed in query url', data['message'])
+        self.assertEqual('invalid or unknown filter type passed in query url', data['message'])
 
 
     def test_search_business_without_filter_value(self):

@@ -12,8 +12,8 @@ from flask_paginate import Pagination, get_page_args, get_page_parameter
 businessBlueprint = Blueprint('business', __name__)
 
 @businessBlueprint.route('/api/businesses', methods=['POST'])
-@swag_from('createBusiness.yml')
-# @token_required
+# @swag_from('create_business.yml')
+@token_required
 def create_business():
     global logged_in_user
     jsn = request.data
@@ -46,10 +46,7 @@ def create_business():
         return jsonify({'message':'name of business is too long, should between five and ten characters'}), 400 #bad request
 
     if not logged_in_user:
-        return jsonify({'message':'you are not logged in, please login'}), 400 #bad request
-
-    if not logged_in_user:
-        return jsonify({'message':'you are not logged in, please login'}), 400 #bad request
+        return jsonify({'message':'you are not logged in, please login'}), 401 # unauthorised access
 
     #lets pick the data from json passed
     business_name = data['name']
@@ -75,8 +72,8 @@ def create_business():
         return jsonify({'message':'business already exists, please try again'}), 400
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['GET'])
-@swag_from('retrieveBusiness.yml')
-# @token_required
+# @swag_from('retrieveBusiness.yml')
+@token_required
 def get_one_business(id):
     biz = Business.query.get(id)
     if biz:
@@ -86,11 +83,10 @@ def get_one_business(id):
 
 # route should look like 127.0.0.1:5000/api/businesses?page=<number>&limit=<number> 
 @businessBlueprint.route('/api/businesses', methods=['GET']) 
-@swag_from('retrieveAllBusinesses.yml')
-# @token_required
+# @swag_from('retrieve_all_businesses.yml')
+@token_required
 def get_all_businesses():
-    # businesses = Business.query.all()
-    # 
+
     if request.method == 'GET':
         try:
             limit = request.args.get('limit') or 5 # default is 5 in case limit is not set
@@ -115,14 +111,14 @@ def get_all_businesses():
                 }
                 business_list.append(business_obj)
 
-            return jsonify({'message':business_list}), 200
+            return jsonify({'businesses':business_list}), 200
         except Exception:
             return jsonify({"message":'limit and page should be integer values'}), 400
 
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['PUT'])
-@swag_from('updateBusiness.yml')
-# @token_required
+# @swag_from('updateBusiness.yml')
+@token_required
 def update_business(id):
     global logged_in_user
     jsn = request.data
@@ -191,8 +187,8 @@ def update_business(id):
 
         
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['DELETE'])
-@swag_from('deleteBusiness.yml')
-# @token_required
+# @swag_from('deleteBusiness.yml')
+@token_required
 def delete_business(id):
     global logged_in_user    
     biz = Business.query.get(int(id))
@@ -213,8 +209,8 @@ def delete_business(id):
 
 
 @businessBlueprint.route('/api/businesses/search', methods=['GET'])
-@swag_from('searchBusiness.yml')
-# @token_required
+# @swag_from('searchBusiness.yml')
+@token_required
 def search_business():
     name = request.args.get('q')
     filter_type = str(request.args.get('filter_type'))
@@ -282,8 +278,8 @@ def search_business():
 
 
 @businessBlueprint.route('/api/businesses/filter', methods=['GET'])
-@swag_from('filterBusiness.yml')
-# @token_required
+# @swag_from('filterBusiness.yml')
+@token_required
 def filter_business():
     filter = str(request.args.get('filter'))
     filter_value = str(request.args.get('filter_value'))
@@ -340,5 +336,3 @@ def filter_business():
         return jsonify({"message":business_list}), 200
     else:
         return jsonify({"message":'no businesses found'}), 404
-
-    # return jsonify({"businesses":[business.returnJson() for business in results]}), 200

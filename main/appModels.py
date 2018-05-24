@@ -91,20 +91,3 @@ class Review(db.Model):
     def returnJson(self):
         reviewJsonFormat = {'id':self.id, 'userid':self.userid, 'business_id':self.business_id, 'Author':User.query.get(self.userid).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
         return reviewJsonFormat
-
-
-# class BlackList(db.Model):
-#     """class for blacklisted tokens"""
-#     __tablename__ = 'blacklist'
-#     id = db.Column(db.Integer, primary_key=True)
-#     token = db.Column(db.String(256), nullable=False, unique=True)
-
-#     def __init__(self, token):
-#         self.token = token
-
-#     def __repr__(self):
-#         return '<Token {}>'.format(self.token)
-
-#     def returnJson(self):
-#         tokenJsonformat = {'token':self.token}
-#         return tokenJsonformat

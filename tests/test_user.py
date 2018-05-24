@@ -73,7 +73,7 @@ class Testuser(BaseTestUser):
         self.assertTrue(result['message'] == "user successfully registered")
         self.assertEqual(201, response.status_code)
 
-    def test_ausername_missing_login(self):
+    def test_username_missing_login(self):
         response = self.client.post('/api/auth/login', data=json.dumps(self.username_missing_login), content_type='application/json')
         result = json.loads(response.data.decode())     
         self.assertEqual(result['message'], "username missing")

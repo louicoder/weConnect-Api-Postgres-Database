@@ -39,7 +39,7 @@ def token_required(f):
 
 
 @userBlueprint.route('/api/auth/register', methods=['POST'])
-@swag_from('createUser.yml')
+@swag_from('create_user.yml')
 def create_user():
     jsn = request.data
     data = json.loads(jsn)
@@ -108,7 +108,7 @@ def create_user():
         password
 
 @userBlueprint.route('/api/auth/login', methods=['POST'])
-@swag_from('loginUser.yml')
+@swag_from('user_login.yml')
 def login():
     global logged_in_user
     jsn = request.data
@@ -144,7 +144,7 @@ def login():
        
 
 @userBlueprint.route('/api/auth/reset-password', methods=['PUT'])
-@swag_from('resetUserPassword.yml')
+@swag_from('reset_user_password.yml')
 @token_required
 def reset_password():
     global logged_in_user
@@ -171,7 +171,7 @@ def reset_password():
 
 
 @userBlueprint.route('/api/auth/logout', methods=['POST'])
-@swag_from('logoutUser.yml')
+@swag_from('user_logout.yml')
 def logout():    
     # 
     global logged_in_user
