@@ -2,17 +2,17 @@ from flask import Blueprint, Flask, request, json, jsonify, make_response, url_f
 import jwt
 import datetime
 from datetime import datetime
-from ..user.userViews import token_required, logged_in_user
+from ..user.user_views import token_required, logged_in_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
-from ..appModels import Business, db
+from ..app_models import Business, db
 from flask_paginate import Pagination, get_page_args, get_page_parameter
 
 
 businessBlueprint = Blueprint('business', __name__)
 
 @businessBlueprint.route('/api/businesses', methods=['POST'])
-# @swag_from('apidocs/create_business.yml')
+@swag_from('apidocs/create_business.yml')
 @token_required
 def create_business():
     global logged_in_user
@@ -84,9 +84,8 @@ def get_one_business(id):
 # route should look like 127.0.0.1:5000/api/businesses?page=<number>&limit=<number> 
 @businessBlueprint.route('/api/businesses', methods=['GET']) 
 # @swag_from('retrieve_all_businesses.yml')
-@token_required
+# @token_required
 def get_all_businesses():
-
     if request.method == 'GET':
         try:
             limit = request.args.get('limit') or 5 # default is 5 in case limit is not set
@@ -110,21 +109,21 @@ def get_all_businesses():
                     'total':businesses.total
                 }
                 business_list.append(business_obj)
-
-            return jsonify({'businesses':business_list}), 200
+            
+            return jsonify({'businesses':[business for business in business_list]}), 200
         except Exception:
             return jsonify({"message":'limit and page should be integer values'}), 400
 
 
-@businessBlueprint.route('/api/businesses/<int:id>', methods=['PUT'])
+@businessBlueprint.route('/api/businesses/<int:business_id>', methods=['PUT'])
 # @swag_from('update_business.yml')
 @token_required
-def update_business(id):
+def update_business(business_id):
     global logged_in_user
     jsn = request.data
     data = json.loads(jsn)
-    biz = Business.query.get(int(id))    
-    
+    biz = Business.query.get(int(business_id))
+
     if not logged_in_user:
         return jsonify({"message":"please login"}), 401
 
@@ -142,10 +141,10 @@ def update_business(id):
             business_name = data['name']
 
             if len(business_name) < 5:
-                return jsonify({'message':'name of business is too short, should between five and ten characters'}), 400 #bad request
+                return jsonify({'message':'name of business is too short, should between five and fifty characters'}), 400 #bad request
 
-            if len(business_name) > 10:
-                return jsonify({'message':'name of business is too long, should between five and ten characters'}), 400 #bad request
+            if len(business_name) > 50:
+                return jsonify({'message':'name of business is too long, should between five and fifty characters'}), 400 #bad request
 
             for x in business_name:
                 if x in specialChars:
@@ -178,7 +177,6 @@ def update_business(id):
             biz.description = description   
 
         biz.date_modified = datetime.now()
-        print([business_name, location, category, description])
         db.session.add(biz)
         db.session.commit()
         return jsonify({'message':'business has been updated successfully'}), 200
@@ -186,12 +184,12 @@ def update_business(id):
         return jsonify({'message':'no business with that id exists'}), 404
 
         
-@businessBlueprint.route('/api/businesses/<int:id>', methods=['DELETE'])
+@businessBlueprint.route('/api/businesses/<int:business_id>', methods=['DELETE'])
 # @swag_from('delete_business.yml')
 @token_required
-def delete_business(id):
+def delete_business(business_id):
     global logged_in_user    
-    biz = Business.query.get(int(id))
+    biz = Business.query.get(int(business_id))
 
     if not logged_in_user:
         return jsonify({"message": "please login"}), 400
@@ -279,7 +277,7 @@ def search_business():
 
 @businessBlueprint.route('/api/businesses/filter', methods=['GET'])
 # @swag_from('filter_business.yml')
-@token_required
+# @token_required
 def filter_business():
     filter = str(request.args.get('filter'))
     filter_value = str(request.args.get('filter_value'))

@@ -5,7 +5,8 @@ import sys, os
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
 from functools import wraps
-from ..appModels import db, User
+from ..app_models import db, User
+import re
 
 # from run import SECRET_KEY
 
@@ -82,17 +83,21 @@ def create_user():
     if len(data['password']) > 10:
         return jsonify({'message':'password too long, should be between five and ten characters'}), 400 #bad request
 
-    #check if the email contains a dot
-    if '.' not in data['email']:
-        return jsonify({'message':'email is invalid, dot missing'}), 400 #bad request
+    # #check if the email contains a dot
+    # if '.' not in data['email']:
+    #     return jsonify({'message':'email is invalid, dot missing'}), 400 #bad request
 
-    #check if the email contains an @ symbol
-    if '@' not in data['email']:
-        return jsonify({'message':'email is invalid, @ symbol missing'}), 400 #bad request
+    # #check if the email contains an @ symbol
+    # if '@' not in data['email']:
+    #     return jsonify({'message':'email is invalid, @ symbol missing'}), 400 #bad request
+    
 
     username = data['username']
     password = data['password']
     email = data['email']
+
+    if not re.search(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9]+\.[a-zA-Z0-9.]*\.*[com|org|edu]{3}$)", email):
+        return jsonify({'message':'email is not in valid format'}), 400 #bad request
 
     if not username or not password or not email:
         return jsonify({'message':'make sure that you have passed all fields.'})

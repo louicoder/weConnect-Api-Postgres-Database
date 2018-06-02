@@ -43,6 +43,6 @@ omit =
     */flasgger/*
     */mistune.py
     manage.py
-    main/appModels.py
+    main/app_models.py
     main/views/business/businessModel.py
     main/views/reviews/reviewModel.py

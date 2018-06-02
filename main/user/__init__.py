@@ -1,1 +1,1 @@
-from ..appModels import db
+from ..app_models import db
