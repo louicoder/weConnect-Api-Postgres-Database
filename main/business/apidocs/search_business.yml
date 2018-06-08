@@ -1,4 +1,4 @@
-Endpoint returning filtered businesses
+Endpoint returning a business searched by name
 ---
 tags:
   - Business
@@ -8,15 +8,18 @@ parameters:
     type: string
     description: JWT token authorization
     required: true
-  - name: filterType
+  - name: q
     in: query
-    description: Choose a filter either location or category
+    description: name of business to search for
     required: true
     type: string
-  - name: filterValue
+  - name: filter_type
+    in: query
+    description: Choose filter(location or category)
+    type: string
+  - name: filter_value
     in: query
     description: Value of your filter
-    required: true
     type: string
   - name: page
     in: query
@@ -55,23 +58,24 @@ definitions:
       
 responses:
   200:
-    description: Filtered businesses
+    description: Search Business results
     schema:
       $ref: '#/definitions/Business'
     examples:
-      Business: 
-        [{
-          "Created By": "business author", 
-          "Date Created": "Sun, 25 Mar 2018 10:43:31 GMT", 
-          "Last Modified": "Mon, 26 Mar 2018 10:23:28 GMT",       
-          "category": "categoryx", 
-          "description": "businessx description", 
-          "id": 1, 
-          "location": "locationx", 
-          "name": "businessx", 
-          "userid": 1
-        }]
+      Businesses: [{
+      "Created By": "business creator", 
+      "Date Created": "Sun, 25 Mar 2018 10:43:31 GMT", 
+      "Last Modified": "Mon, 26 Mar 2018 10:23:28 GMT",
+      "Review count": 3,
+      "category": "category 1", 
+      "description": "business 1 description", 
+      "id": 1, 
+      "location": "location 1", 
+      "name": "business 1", 
+      "user_id": 1,
+      "total": 3
+    }]
   404:
-    description: No businesses registered 
+    description: No businesses by that name
   401:
-    description: Invalid token or User has signed out
+    description: Invalid token / User signed out

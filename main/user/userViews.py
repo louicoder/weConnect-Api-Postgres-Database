@@ -5,7 +5,7 @@ import sys, os
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
 from functools import wraps
-from ..appModels import db, User, BlackList, BlackList
+from ..appModels import db, User
 
 # from run import SECRET_KEY
 
@@ -30,22 +30,19 @@ def token_required(f):
             return jsonify({'message ':'Unauthorized access token is missing'}), 401
         try:
             data = jwt.decode(token,SECRET_KEY)
-            current_user = User.query.get(int(data['id']))
+            # current_user = User.query.get(int(data['id']))
         except:
             return jsonify({'message', 'Token is invalid'}), 401
-        return f(current_user, *args, **kwargs)
+        return f(*args, **kwargs)
 
     return decorated
 
 
 @userBlueprint.route('/api/auth/register', methods=['POST'])
-@swag_from('createUser.yml')
+@swag_from('apidocs/create_user.yml')
 def create_user():
     jsn = request.data
     data = json.loads(jsn)
-    username = data['username']
-    password = data['password']
-    email = data['email']
 
     specialChars = ['@', '#', '$', '%', '^', '&', '*', '!', '/', '?', '-', '_']
     
@@ -74,10 +71,10 @@ def create_user():
 
     #check length of username, should be five characters and above
     if len(username) < 5:
-        return jsonify({'message':'username too short, should be five characters and above'}), 400 #bad request
+        return jsonify({'message':'username too short, should be between five and ten characters'}), 400 #bad request
 
     if len(username) > 10:
-        return jsonify({'message':'username too long, should be five characters and above'}), 400 #bad request
+        return jsonify({'message':'username too long, should be between five and ten characters'}), 400 #bad request
 
     if len(data['password']) < 5:
         return jsonify({'message':'password too short, should be between five and ten characters'}), 400 #bad request
@@ -93,6 +90,10 @@ def create_user():
     if '@' not in data['email']:
         return jsonify({'message':'email is invalid, @ symbol missing'}), 400 #bad request
 
+    username = data['username']
+    password = data['password']
+    email = data['email']
+
     if not username or not password or not email:
         return jsonify({'message':'make sure that you have passed all fields.'})
     else:        
@@ -107,66 +108,51 @@ def create_user():
         password
 
 @userBlueprint.route('/api/auth/login', methods=['POST'])
-@swag_from('loginUser.yml')
+@swag_from('apidocs/user_login.yml')
 def login():
     global logged_in_user
-    auth = None   
     jsn = request.data
     data = json.loads(jsn)
-
+    
     if logged_in_user:
-        username = logged_in_user['username']
-        return jsonify({'message':'already logged in as '+username})
+        # username = logged_in_user['username']
+        return jsonify({'message':'you are already logged in'}), 400
 
-    if auth:
-        un=auth.username
-        pd=auth.password
+    if data:
+        if 'username' not in data.keys():
+            return jsonify({"message":"username missing"}), 400
 
-        #if no password is given.
-        if not un:
-            return jsonify({"message":"no username was provided"}), 400
-
-        #if no password is given.
-        if not pd:
-            return jsonify({"message":"no password was provided"}), 400
-
-        token = jwt.encode({'user':auth.username, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, SECRET_KEY)
-        print(token)
-        user = User.query.filter_by(username=un).first()
-        print(user)
-        if check_password_hash(user.password, pd):
-            logged_in_user['id']=user.id
-            logged_in_user['username'] = user.username
-            logged_in_user['password'] = user.password
-            return jsonify({'token':token.decode('UTF-8'), 'message':'successfully logged in'}), 200
-    elif data:
+        if 'password' not in data.keys():
+            return jsonify({"message":"password missing"}), 400
 
         un=data['username']
         pd=data['password']
 
-
         token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, SECRET_KEY)
-        print(token)
+        
         user = User.query.filter_by(username=un).first()
-        print(user)
+        if not user:
+            return jsonify({'message':'wrong username or password or user not registered'}), 400
+        
         if check_password_hash(user.password, pd):
             logged_in_user['id']=user.id
             logged_in_user['username'] = user.username
             logged_in_user['password'] = user.password
             return jsonify({'token':token.decode('UTF-8'), 'message':'successfully logged in'}), 200
-    else:
-        return make_response(jsonify({'message':'wrong username or password'})), 404
         
-    return make_response(jsonify({'message':'wrong username or password'})), 401
+    return make_response(jsonify({'message':'wrong username or password'})), 400
        
 
 @userBlueprint.route('/api/auth/reset-password', methods=['PUT'])
-@swag_from('resetUserPassword.yml')
+@swag_from('apidocs/reset_user_password.yml')
 @token_required
 def reset_password():
     global logged_in_user
     jsn = request.data
     data = json.loads(jsn)
+
+    # if 'username' not in data.keys():
+    #     return jsonify({"message":"username missing"})
     
     if 'password' not in data.keys():
         return jsonify({"message":"password missing"})
@@ -185,21 +171,15 @@ def reset_password():
 
 
 @userBlueprint.route('/api/auth/logout', methods=['POST'])
-@swag_from('logoutUser.yml')
-# @token_required
+@swag_from('apidocs/user_logout.yml')
 def logout():    
     # 
     global logged_in_user
     if not logged_in_user:
-        return jsonify({"message":"you are already logged out"}), 400
-    # tk = request.headers['x-access-token'
+        return jsonify({"message":"you are already logged out"}), 400 #bad request
     
-    # token = BlackList(token=tk)
-    # db.session.add(token)
-    # db.session.commit()
-    
-    # if BlackList.query.filter_by(token=token).count() == 1:
-    return jsonify({"message":"successfully logged out"})
+    logged_in_user ={}
+    return jsonify({"message":"successfully logged out"}), 200 #ok
 
 
 

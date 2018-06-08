@@ -16,7 +16,7 @@ Endpoint for creating a new user
   definitions:
     User:
       type: object
-      properties: 
+      properties:
         id:
           type: integer
           format: int32
@@ -31,20 +31,31 @@ Endpoint for creating a new user
       properties:
         username:
           type: string
+          example: "louis"
         email:
           type: string
+          example: "louis@email.com"
         password:
           type: string
+          example: "password"
 
   responses:
     201:
-      description: User created Successfully
+      description: user has been successfully registered
       schema:
         $ref: '#/definitions/User'
       examples:
         [{
-          "message":"User created Successfully"
+          "message":"user has been successfully registered"
         }]
-    404:
-      description: Failed to create user
+    400:      
+      description: user already exists
+      description: username contains special characters
+      description: username should be five characters and above
+      description: password should be five characters and above
+      description: email is invalid, dot missing
+      description: email is invalid, @ missing
+      description: username is missing
+      description: email is missing
+      description: password is missing
       

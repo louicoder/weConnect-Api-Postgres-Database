@@ -1,0 +1,47 @@
+Endpoint for logging a User in
+---
+  tags:
+    - User
+  consumes:
+    - application/json
+  produces:
+    - application/json
+  parameters:    
+    - name: body
+      in: body
+      description: Login For a User
+      schema:
+        $ref: '#/definitions/userLogin'
+  
+  definitions:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    userLogin:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "louis"
+        password:
+          type: string
+          example: "password"
+  responses:
+    200:
+      description: logged in successfully
+      schema:
+        $ref: '#/definitions/User'      
+      examples:
+        [{
+          "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MjIyMzM2MDgsImlkIjoxfQ.wx_sNnmhdUOtG4ohL-anyhpaQZZAgEDsy1SJiiSP55s"
+          
+        }]
+    401:
+      description: unauthorised access, wrong username or password
+      description: couldn't verify login
+    400:
+      description: you are already logged in
