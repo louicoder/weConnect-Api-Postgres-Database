@@ -23,7 +23,8 @@ before_script:
 #script to run tests
 script:
   # - nose2 tests --with-coverage 
-  - nosetests --with-coverage --cover-tests  --cover-package=tests
+  #- nosetests --with-coverage --cover-tests  --cover-package=tests
+  - nose2 --with-coverage
   - coverage report
 
 #update coveralls on cchanges
