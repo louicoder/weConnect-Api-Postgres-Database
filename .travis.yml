@@ -3,14 +3,16 @@ language: python
 python: 
   - 3.6.5
 
-before_install:
-  - sudo pip uninstall -y pyJWT
-  - sudo pip uninstall -y JWT
+# before_install:
+#   - sudo pip uninstall -y pyJWT
+#   - sudo pip uninstall -y JWT
 
 install: 
   - pip install -r requirements.txt
   - pip install coveralls
   - pip install unittest2
+  - sudo pip uninstall -y pyJWT
+  - sudo pip uninstall -y JWT
   - pip install pyJWT
 
 env: 
