@@ -7,6 +7,8 @@ install:
   - pip install -r requirements.txt
   - pip install coveralls
   - pip install unittest2
+  - pip uninstall pyJWT
+  - pip uninstall JWT
   - pip install pyJWT
 
 env: 
