@@ -7,20 +7,17 @@ python:
 #   - sudo pip uninstall -y pyJWT
 #   - sudo pip uninstall -y JWT
 
-virtualenv:
-  system_site_packages: true
-
-env: 
-  - 
-  - COVERAGE_FILE=".coverage" FLASK_APP="run.py" SECRET="veryHardtoGEtPassword" APP_SETTINGS="config.TestingConfig" DATABASE_URL="postgres://postgres@localhost/weconnect"
-  # - SQLALCHEMY_DATABASE_URI='postgresql://louis:''@localhost/weconnect' SECRET_KEY='veryHardtoGEtPassword' APP_SETTINGS=config.TestingConfig
 
 install: 
-  - pip install -r requirements.txt
+  - pip install --user -r requirements.txt
   - pip install coveralls
   - pip install unittest2
   - pip install Flask-JWT
   - pip install pyJWT
+
+env: 
+  - COVERAGE_FILE=".coverage" FLASK_APP="run.py" SECRET="veryHardtoGEtPassword" APP_SETTINGS="config.TestingConfig" DATABASE_URL="postgres://postgres@localhost/weconnect"
+  # - SQLALCHEMY_DATABASE_URI='postgresql://louis:''@localhost/weconnect' SECRET_KEY='veryHardtoGEtPassword' APP_SETTINGS=config.TestingConfig
 
 services:
   - postgresql
