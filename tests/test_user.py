@@ -29,6 +29,13 @@ class Testuser(BaseTestUser):
         self.assertEqual(result['message'], "username too short, should be between five and ten characters")
         self.assertEqual(400, response.status_code)
 
+    def test_short_passwors_registration(self):
+        self.user['password'] = 'loui'
+        response = self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
+        result = json.loads(response.data.decode())
+        self.assertEqual(result['message'], "password too short, should be between five and ten characters")
+        self.assertEqual(400, response.status_code)
+
     def test_long_username_registration(self):
         self.user['username'] = 'lougusername'
         response = self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
@@ -40,7 +47,6 @@ class Testuser(BaseTestUser):
     def test_email_missing_registration(self):
         self.user.pop('email')
         response = self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
-
         result = json.loads(response.data.decode())
         self.assertTrue(result['message'] == "email is missing")
         self.assertEqual(400, response.status_code)
@@ -66,12 +72,6 @@ class Testuser(BaseTestUser):
         result = json.loads(response.data.decode())
         self.assertEqual(result['message'], "email is not in valid format")
         self.assertEqual(400, response.status_code)
-
-    # def test_at_mising_email(self):
-    #     response = self.client.post('/api/auth/register', data=json.dumps(self.email_at_missing), content_type='application/json')
-    #     result = json.loads(response.data.decode())
-    #     self.assertEqual(result['message'], "email is invalid, @ symbol missing")
-    #     self.assertEqual(400, response.status_code)
 
     def test_registration_successful(self):
         response = self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')

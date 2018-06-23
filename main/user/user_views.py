@@ -8,11 +8,6 @@ from functools import wraps
 from ..app_models import db, User
 import re
 
-# from run import SECRET_KEY
-
-# sys.path.append('..')
-# from run import app
-
 userBlueprint = Blueprint('user', __name__)
 SECRET_KEY = 'password reversed drowssap' # secret key
 logged_in_user ={}
@@ -51,53 +46,43 @@ def create_user():
     if 'username' not in data.keys():
         return jsonify({'message':'username is missing'}), 400 #bad request
     else:
-        username = data['username']
+        if len(data['username']) == 0:
+            return jsonify({'message':'username is blank'}), 400 #bad request
+        #check length of username, should be five characters and above
+        if len(data['username']) < 5:
+            return jsonify({'message':'username too short, should be between five and ten characters'}), 400 #bad request
+
+        if len(data['username']) > 10:
+            return jsonify({'message':'username too long, should be between five and ten characters'}), 400 #bad request
+            
+        #check whether username contains special characters, its forbidden!
+        for x in data['username']:
+            if x in specialChars:
+                return jsonify({'message':'username contains special characters'}), 400 #bad request
 
     #check that email is not missing
     if 'email' not in data.keys():
         return jsonify({'message':'email is missing'}), 400 #bad request
     else:
-        email = data['email']
+        if len(data['email']) == 0:
+            return jsonify({'message':'email is blank'}), 400 #bad request
+        #check that the email is in good format
+        if not re.search(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9]+\.[a-zA-Z0-9.]*\.*[com|org|edu]{3}$)", data['email']):
+            return jsonify({'message':'email is not in valid format'}), 400 #bad request
 
     #check that password is not missing
     if 'password' not in data.keys():
         return jsonify({'message':'password is missing'}), 400 #bad request
     else:
-        password = data['password']
+        if len(data['password']) < 5:
+            return jsonify({'message':'password too short, should be between five and ten characters'}), 400 #bad request
 
-    #check whether username contains special characters, its forbidden!
-    for x in username:
-        if x in specialChars:
-            return jsonify({'message':'username contains special characters'}), 400 #bad request
-
-    #check length of username, should be five characters and above
-    if len(username) < 5:
-        return jsonify({'message':'username too short, should be between five and ten characters'}), 400 #bad request
-
-    if len(username) > 10:
-        return jsonify({'message':'username too long, should be between five and ten characters'}), 400 #bad request
-
-    if len(data['password']) < 5:
-        return jsonify({'message':'password too short, should be between five and ten characters'}), 400 #bad request
-
-    if len(data['password']) > 10:
-        return jsonify({'message':'password too long, should be between five and ten characters'}), 400 #bad request
-
-    # #check if the email contains a dot
-    # if '.' not in data['email']:
-    #     return jsonify({'message':'email is invalid, dot missing'}), 400 #bad request
-
-    # #check if the email contains an @ symbol
-    # if '@' not in data['email']:
-    #     return jsonify({'message':'email is invalid, @ symbol missing'}), 400 #bad request
-    
+        # if len(data['password']) > 10:
+        #     return jsonify({'message':'password too long, should be between five and ten characters'}), 400 #bad request
 
     username = data['username']
     password = data['password']
     email = data['email']
-
-    if not re.search(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9]+\.[a-zA-Z0-9.]*\.*[com|org|edu]{3}$)", email):
-        return jsonify({'message':'email is not in valid format'}), 400 #bad request
 
     if not username or not password or not email:
         return jsonify({'message':'make sure that you have passed all fields.'})
@@ -110,7 +95,7 @@ def create_user():
                 return jsonify({'message':'user successfully registered'}), 201 #created
         else:
             return jsonify({'message':'user already exists'}), 400 #bad request
-        password
+
 
 @userBlueprint.route('/api/auth/login', methods=['POST'])
 @swag_from('apidocs/user_login.yml')

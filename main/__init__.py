@@ -7,6 +7,7 @@ from .reviews.review_views import reviewBlueprint
 from flasgger import Swagger
 from flasgger import swag_from
 from .app_models import db, Business, User, Review
+from flask_cors import CORS
 
 
 app = Flask(__name__)
@@ -28,6 +29,7 @@ template = {
 
 #swagger docs instanciation
 swagger = Swagger(app, template=template)
+CORS(app)
 
 @app.route('/')
 def index():
