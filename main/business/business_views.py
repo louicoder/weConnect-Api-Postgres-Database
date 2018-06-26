@@ -72,7 +72,7 @@ def create_business():
         return jsonify({'message':'business already exists, please try again'}), 400
 
 @businessBlueprint.route('/api/businesses/<int:id>', methods=['GET'])
-# @swag_from('retrieve_business.yml')
+@swag_from('retrieve_business.yml')
 @token_required
 def get_one_business(id):
     biz = Business.query.get(id)
@@ -83,8 +83,8 @@ def get_one_business(id):
 
 # route should look like 127.0.0.1:5000/api/businesses?page=<number>&limit=<number> 
 @businessBlueprint.route('/api/businesses', methods=['GET']) 
-# @swag_from('retrieve_all_businesses.yml')
-# @token_required
+@swag_from('retrieve_all_businesses.yml')
+@token_required
 def get_all_businesses():
     if request.method == 'GET':
         try:
@@ -116,7 +116,7 @@ def get_all_businesses():
 
 
 @businessBlueprint.route('/api/businesses/<int:business_id>', methods=['PUT'])
-# @swag_from('update_business.yml')
+@swag_from('update_business.yml')
 @token_required
 def update_business(business_id):
     global logged_in_user
@@ -185,7 +185,7 @@ def update_business(business_id):
 
         
 @businessBlueprint.route('/api/businesses/<int:business_id>', methods=['DELETE'])
-# @swag_from('delete_business.yml')
+@swag_from('delete_business.yml')
 @token_required
 def delete_business(business_id):
     global logged_in_user    
@@ -207,7 +207,7 @@ def delete_business(business_id):
 
 
 @businessBlueprint.route('/api/businesses/search', methods=['GET'])
-# @swag_from('search_business.yml')
+@swag_from('search_business.yml')
 @token_required
 def search_business():
     name = request.args.get('q')
@@ -276,8 +276,8 @@ def search_business():
 
 
 @businessBlueprint.route('/api/businesses/filter', methods=['GET'])
-# @swag_from('filter_business.yml')
-# @token_required
+@swag_from('filter_business.yml')
+@token_required
 def filter_business():
     filter = str(request.args.get('filter'))
     filter_value = str(request.args.get('filter_value'))

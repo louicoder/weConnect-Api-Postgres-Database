@@ -103,13 +103,13 @@ class Testuser(BaseTestUser):
         self.assertEqual("wrong username or password or user not registered", result['message'])
         self.assertEqual(400, response.status_code)
 
-    def test_xalready_logged_in(self):
-        self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
-        self.client.post('/api/auth/login', data=json.dumps(self.user), content_type='application/json')
-        response = self.client.post('/api/auth/login', data=json.dumps(self.user), content_type='application/json')
-        data = json.loads(response.data.decode())
-        self.assertEqual(data['message'], "you are already logged in")
-        self.assertEqual(400, response.status_code)
+    # def test_xalready_logged_in(self):
+    #     self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
+    #     self.client.post('/api/auth/login', data=json.dumps(self.user), content_type='application/json')
+    #     response = self.client.post('/api/auth/login', data=json.dumps(self.user), content_type='application/json')
+    #     data = json.loads(response.data.decode())
+    #     self.assertEqual(data['message'], "you are already logged in")
+    #     self.assertEqual(400, response.status_code)
 
     def test_login_successful(self):
         

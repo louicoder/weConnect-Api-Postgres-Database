@@ -43,5 +43,5 @@ Endpoint for logging a User in
     401:
       description: unauthorised access, wrong username or password
       description: couldn't verify login
-    400:
-      description: you are already logged in
+    # 400:
+    #   description: you are already logged in

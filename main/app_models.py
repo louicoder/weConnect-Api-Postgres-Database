@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+import jwt
+# from .user.user_views import SECRET_KEY
 
 db= SQLAlchemy()
 
@@ -24,6 +26,25 @@ class User(db.Model):
     def returnJson(self):
         reviewJsonFormat = {'username':self.username, 'email':self.email, 'id':self.id, 'password':self.password}
         return reviewJsonFormat
+
+    # @staticmethod
+    # def decode_token(token):
+    #     """Function to decode the token
+    #     """
+    #     try:
+    #         payload = jwt.decode(token, SECRET_KEY)
+    #         is_blacklisted_token = BlackListToken.check_blacklist(
+    #             auth_token=token)
+    #         if is_blacklisted_token:
+    #             return 'Token Blacklisted. Please log in'
+    #         else:
+    #             return payload['sub']
+    #     except jwt.ExpiredSignatureError:
+    #         # if the token is expired, return an error string
+    #         return "The token is expired. Login to renew token"
+    #     except jwt.InvalidTokenError:
+    #         # if the token is invalid, return an error string
+    #         return "Invalid token. Login or Register"
         
 
 ############### BUSINESS MODEL #################
@@ -91,3 +112,39 @@ class Review(db.Model):
     def returnJson(self):
         reviewJsonFormat = {'id':self.id, 'user_id':self.user_id, 'business_id':self.business_id, 'Author':User.query.get(self.user_id).username, 'Review':self.review, 'dateCreated':self.date_created, 'dateModified':self.date_modified}
         return reviewJsonFormat
+
+
+####################################
+### class for blacklisted tokens ###
+####################################
+
+class BlackListToken(db.Model):
+    """Class to blacklist expired tokens
+    """
+    __tablename__ = 'blacklist_tokens'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    token = db.Column(db.String(500), unique=True, nullable=False)
+    blacklisted_on = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    def __init__(self, token):
+        self.token = token
+
+    def save(self):
+        """function to save expired token
+        """
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def check_blacklist(auth_token):
+        """function to check if token is blacklisted
+        """
+        # check whether token has been blacklisted
+        res = BlackListToken.query.filter_by(token=str(auth_token)).first()
+        if res:
+            return True
+        else:
+            return False
+
+    def __repr__(self):
+        return '<id: token: {}'.format(self.token)

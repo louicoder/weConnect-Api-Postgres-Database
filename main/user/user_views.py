@@ -5,7 +5,7 @@ import sys, os
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
 from functools import wraps
-from ..app_models import db, User
+from ..app_models import db, User, BlackListToken
 import re
 
 userBlueprint = Blueprint('user', __name__)
@@ -83,18 +83,15 @@ def create_user():
     username = data['username']
     password = data['password']
     email = data['email']
-
-    if not username or not password or not email:
-        return jsonify({'message':'make sure that you have passed all fields.'})
-    else:        
-        if User.query.filter_by(username=username).count() == 0:
-            user = User(username=username, password=generate_password_hash(password), email=email)
-            if user:
-                db.session.add(user)
-                db.session.commit()
-                return jsonify({'message':'user successfully registered'}), 201 #created
-        else:
-            return jsonify({'message':'user already exists'}), 400 #bad request
+       
+    if User.query.filter_by(username=username).count() == 0:
+        user = User(username=username, password=generate_password_hash(password), email=email)
+        if user:
+            db.session.add(user)
+            db.session.commit()
+            return jsonify({'message':'user successfully registered'}), 201 #created
+    else:
+        return jsonify({'message':'user already exists'}), 400 #bad request
 
 
 @userBlueprint.route('/api/auth/login', methods=['POST'])
@@ -104,9 +101,9 @@ def login():
     jsn = request.data
     data = json.loads(jsn)
     
-    if logged_in_user:
-        # username = logged_in_user['username']
-        return jsonify({'message':'you are already logged in'}), 400
+    # if logged_in_user:
+    #     # username = logged_in_user['username']
+    #     return jsonify({'message':'you are already logged in'}), 400
 
     if data:
         if 'username' not in data.keys():
@@ -117,14 +114,14 @@ def login():
 
         un=data['username']
         pd=data['password']
-
-        token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, SECRET_KEY)
         
         user = User.query.filter_by(username=un).first()
         if not user:
             return jsonify({'message':'wrong username or password or user not registered'}), 400
         
         if check_password_hash(user.password, pd):
+            # create the token
+            token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30), 'id':user.id}, SECRET_KEY)
             logged_in_user['id']=user.id
             logged_in_user['username'] = user.username
             logged_in_user['password'] = user.password
@@ -157,22 +154,40 @@ def reset_password():
         db.session.add(user)
         return jsonify({'message':'user password has been successfully reset'})
     else:
-        return jsonify({'message': 'Could not reset password because of missing fields'})  
+        return jsonify({'message': 'Could not reset password because of missing fields'})
 
 
 @userBlueprint.route('/api/auth/logout', methods=['POST'])
 @swag_from('apidocs/user_logout.yml')
-def logout():    
-    # 
-    global logged_in_user
-    if not logged_in_user:
-        return jsonify({"message":"you are already logged out"}), 400 #bad request
-    
-    logged_in_user ={}
-    return jsonify({"message":"successfully logged out"}), 200 #ok
-
-
-
-
-
-
+def logout():
+    # global logged_in_user
+    auth_token = request.headers.get('Authorization')
+    if auth_token:
+        res = BlackListToken(auth_token)
+        if not isinstance(res, str):
+            blacklist_token = BlackListToken(token=auth_token)
+            try:
+                blacklist_token.save()
+                response_object = {
+                    'status': 'success',
+                    'message': 'successfully logged out'
+                }
+                return make_response(jsonify(response_object)), 200
+            except Exception as e:
+                response_object = {
+                    'status': 'failed from thrown exception',
+                    'message': str(e)
+                }
+                return make_response(jsonify(response_object)), 200
+        else:
+            response_object = {
+                'status': 'fail from instance',
+                'message': 'You are already logged out or Bad token'
+            }
+            return make_response(jsonify(response_object)), 401
+    else:
+        response_object = {
+            'status': 'fail from token',
+            'message': 'Provide a valid auth token.'
+        }
+        return make_response(jsonify(response_object)), 403
