@@ -83,18 +83,15 @@ def create_user():
     username = data['username']
     password = data['password']
     email = data['email']
-
-    if not username or not password or not email:
-        return jsonify({'message':'make sure that you have passed all fields.'})
-    else:        
-        if User.query.filter_by(username=username).count() == 0:
-            user = User(username=username, password=generate_password_hash(password), email=email)
-            if user:
-                db.session.add(user)
-                db.session.commit()
-                return jsonify({'message':'user successfully registered'}), 201 #created
-        else:
-            return jsonify({'message':'user already exists'}), 400 #bad request
+       
+    if User.query.filter_by(username=username).count() == 0:
+        user = User(username=username, password=generate_password_hash(password), email=email)
+        if user:
+            db.session.add(user)
+            db.session.commit()
+            return jsonify({'message':'user successfully registered'}), 201 #created
+    else:
+        return jsonify({'message':'user already exists'}), 400 #bad request
 
 
 @userBlueprint.route('/api/auth/login', methods=['POST'])
@@ -157,22 +154,15 @@ def reset_password():
         db.session.add(user)
         return jsonify({'message':'user password has been successfully reset'})
     else:
-        return jsonify({'message': 'Could not reset password because of missing fields'})  
+        return jsonify({'message': 'Could not reset password because of missing fields'})
 
 
 @userBlueprint.route('/api/auth/logout', methods=['POST'])
 @swag_from('apidocs/user_logout.yml')
-def logout():    
-    # 
+def logout():
     global logged_in_user
     if not logged_in_user:
         return jsonify({"message":"you are already logged out"}), 400 #bad request
     
     logged_in_user ={}
     return jsonify({"message":"successfully logged out"}), 200 #ok
-
-
-
-
-
-
