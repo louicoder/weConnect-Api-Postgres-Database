@@ -4,8 +4,10 @@ from ..user.user_views import token_required, logged_in_user
 import sys
 from flask_paginate import Pagination, get_page_args, get_page_parameter
 from ..app_models import db, Business, Review
+from flask_cors import CORS
 
 reviewBlueprint = Blueprint('reviews', __name__)
+CORS(reviewBlueprint)
 @reviewBlueprint.route('/api/businesses/<int:business_id>/reviews', methods=['POST'])
 # @swag_from('apidocs/create_review.yml')
 @token_required

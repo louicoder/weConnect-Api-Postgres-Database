@@ -5,20 +5,27 @@ from datetime import datetime
 from ..user.user_views import token_required, logged_in_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
-from ..app_models import Business, db
+from ..app_models import Business, db, User
 from flask_paginate import Pagination, get_page_args, get_page_parameter
+from flask_cors import CORS, cross_origin
+from ..user.user_views import SECRET_KEY
 
 
 businessBlueprint = Blueprint('business', __name__)
 
+CORS(businessBlueprint)
+
 @businessBlueprint.route('/api/businesses', methods=['POST'])
+# @cross_origin()
 @swag_from('apidocs/create_business.yml')
 @token_required
 def create_business():
-    global logged_in_user
+    # global logged_in_user
+    token = request.headers.get('x-access-token')
+    payload = jwt.decode(token, SECRET_KEY)
+    # print(payload['id'])
     jsn = request.data
     data = json.loads(jsn)
-
     specialChars = ['@', '#', '$', '%', '^', '&', '*', '!', '/', '?', '-', '_']
 
     if len(data.keys()) == 0:
@@ -42,15 +49,17 @@ def create_business():
     if len(data['name']) < 5:
         return jsonify({'message':'name of business is too short, should between five and ten characters'}), 400 #bad request
 
-    if len(data['name']) > 10:
+    if len(data['name']) > 50:
         return jsonify({'message':'name of business is too long, should between five and ten characters'}), 400 #bad request
 
-    if not logged_in_user:
-        return jsonify({'message':'you are not logged in, please login'}), 401 # unauthorised access
+    # if not logged_in_user:
+    #     return jsonify({'message':'you are not logged in, please login'}), 401 # unauthorised access
 
+    # payload = jwt.decode(token, SECRET_KEY)
+    
     #lets pick the data from json passed
     business_name = data['name']
-    user_id = logged_in_user['id']
+    user_id = int(payload['id'])
     location =data['location']
     category = data['category']
     description = data['description']
@@ -88,7 +97,7 @@ def get_one_business(id):
 def get_all_businesses():
     if request.method == 'GET':
         try:
-            limit = request.args.get('limit') or 5 # default is 5 in case limit is not set
+            limit = request.args.get('limit') or 10 # default is 5 in case limit is not set
             page = request.args.get('page') or 1
             limit = int(limit)
             page = int(page)

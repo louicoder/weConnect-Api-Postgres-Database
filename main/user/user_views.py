@@ -7,8 +7,10 @@ from flasgger import swag_from
 from functools import wraps
 from ..app_models import db, User, BlackListToken
 import re
+from flask_cors import CORS
 
 userBlueprint = Blueprint('user', __name__)
+CORS(userBlueprint)
 SECRET_KEY = 'password reversed drowssap' # secret key
 logged_in_user ={}
 
@@ -160,7 +162,6 @@ def reset_password():
 @userBlueprint.route('/api/auth/logout', methods=['POST'])
 @swag_from('apidocs/user_logout.yml')
 def logout():
-    # global logged_in_user
     auth_token = request.headers.get('Authorization')
     if auth_token:
         res = BlackListToken(auth_token)

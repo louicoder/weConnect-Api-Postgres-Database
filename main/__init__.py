@@ -9,7 +9,6 @@ from flasgger import swag_from
 from .app_models import db, Business, User, Review
 from flask_cors import CORS
 
-
 app = Flask(__name__)
 app.register_blueprint(userBlueprint)
 app.register_blueprint(businessBlueprint)
@@ -29,7 +28,7 @@ template = {
 
 #swagger docs instanciation
 swagger = Swagger(app, template=template)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*","Access-Control-Allow-Origin":"*"}})
 
 @app.route('/')
 def index():
