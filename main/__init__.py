@@ -9,7 +9,6 @@ from flasgger import swag_from
 from .app_models import db, Business, User, Review
 from flask_cors import CORS
 
-
 app = Flask(__name__)
 app.register_blueprint(userBlueprint)
 app.register_blueprint(businessBlueprint)
