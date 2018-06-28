@@ -160,32 +160,32 @@ def reset_password():
 
 
 @userBlueprint.route('/api/auth/logout', methods=['POST'])
+@token_required
 @swag_from('apidocs/user_logout.yml')
 def logout():
-    auth_token = request.headers.get('Authorization')
+    auth_token = request.headers.get('x-access-token')
+    
     if auth_token:
+        print(auth_token)
         res = BlackListToken(auth_token)
-        if not isinstance(res, str):
-            blacklist_token = BlackListToken(token=auth_token)
-            try:
-                blacklist_token.save()
-                response_object = {
-                    'status': 'success',
-                    'message': 'successfully logged out'
-                }
-                return make_response(jsonify(response_object)), 200
-            except Exception as e:
-                response_object = {
-                    'status': 'failed from thrown exception',
-                    'message': str(e)
-                }
-                return make_response(jsonify(response_object)), 200
-        else:
-            response_object = {
-                'status': 'fail from instance',
-                'message': 'You are already logged out or Bad token'
-            }
-            return make_response(jsonify(response_object)), 401
+        blacklist_token = BlackListToken(token=auth_token)
+        # blacklist_token.save(auth_token)
+        db.session.add(auth_token)
+        db.session.commit()
+
+        # try:
+        #     blacklist_token.save(auth_token)
+        #     response_object = {
+        #         'status': 'success',
+        #         'message': 'successfully logged out'
+        #     }
+        #     return make_response(jsonify(response_object)), 200
+        # except Exception as e:
+        #     response_object = {
+        #         'status': 'failed from thrown exception',
+        #         'message': str(e)
+        #     }
+        #     return make_response(jsonify(response_object)), 200
     else:
         response_object = {
             'status': 'fail from token',

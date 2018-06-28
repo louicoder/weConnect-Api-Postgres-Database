@@ -197,13 +197,16 @@ def update_business(business_id):
 @swag_from('delete_business.yml')
 @token_required
 def delete_business(business_id):
-    global logged_in_user    
+    # global logged_in_user
+    payload = request.headers.get('x-access-token')
+    payload = jwt.decode(payload, SECRET_KEY)
     biz = Business.query.get(int(business_id))
 
     if not logged_in_user:
         return jsonify({"message": "please login"}), 400
 
-    user_id = logged_in_user['id']    
+    # user_id = logged_in_user['id']
+    user_id = payload['id']
     if biz:
         if str(user_id) == str(biz.id):
             db.session.delete(biz)
@@ -343,3 +346,15 @@ def filter_business():
         return jsonify({"message":business_list}), 200
     else:
         return jsonify({"message":'no businesses found'}), 404
+
+@businessBlueprint.route('/api/mybusinesses', methods=['GET'])
+@token_required
+def my_businesses():
+    payload = request.headers.get('x-access-token')
+    payload = jwt.decode(payload, SECRET_KEY)
+    id = payload['id']
+    results = Business.query.filter_by(user_id=int(id)).all()
+    if results:
+        return jsonify({'businesses':[result.returnJson() for result in results]}), 200
+
+    return jsonify({'message':'you do not won any businesses'}), 404
