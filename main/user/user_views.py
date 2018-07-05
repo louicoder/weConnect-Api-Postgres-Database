@@ -12,7 +12,7 @@ from flask_cors import CORS
 userBlueprint = Blueprint('user', __name__)
 CORS(userBlueprint)
 SECRET_KEY = 'password reversed drowssap' # secret key
-logged_in_user ={}
+# logged_in_user ={}
 
 def token_required(f):
     @wraps(f)
@@ -28,11 +28,10 @@ def token_required(f):
             return jsonify({'message ':'Unauthorized access token is missing'}), 401
         try:
             data = jwt.decode(token,SECRET_KEY)
-            # current_user = User.query.get(int(data['id']))
+            current_user = User.query.get(int(data['id']))
         except:
             return jsonify({'message', 'Token is invalid'}), 401
         return f(*args, **kwargs)
-
     return decorated
 
 
@@ -123,10 +122,7 @@ def login():
         
         if check_password_hash(user.password, pd):
             # create the token
-            token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30), 'id':user.id}, SECRET_KEY)
-            logged_in_user['id']=user.id
-            logged_in_user['username'] = user.username
-            logged_in_user['password'] = user.password
+            token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(days=1), 'id':user.id, 'username':user.username}, SECRET_KEY)
             return jsonify({'token':token.decode('UTF-8'), 'message':'successfully logged in'}), 200
         
     return make_response(jsonify({'message':'wrong username or password'})), 400
@@ -136,23 +132,19 @@ def login():
 @swag_from('apidocs/reset_user_password.yml')
 @token_required
 def reset_password():
-    global logged_in_user
     jsn = request.data
     data = json.loads(jsn)
+    payload = request.headers.get('x-access-token')
+    payload = jwt.decode(payload, SECRET_KEY)
+    user_id = payload['id']
 
-    # if 'username' not in data.keys():
-    #     return jsonify({"message":"username missing"})
-    
     if 'password' not in data.keys():
         return jsonify({"message":"password missing"})
 
-    if not logged_in_user:
-        return jsonify({"message":"please login"})
-
     if data['password'] != '':
-        newPassword = data['password']
-        user = User.query.get(logged_in_user['id'])
-        user.password= generate_password_hash(newPassword)
+        new_password = data['password']
+        user = User.query.get(user_id)
+        user.password= generate_password_hash(new_password)
         db.session.add(user)
         return jsonify({'message':'user password has been successfully reset'})
     else:
@@ -166,26 +158,12 @@ def logout():
     auth_token = request.headers.get('x-access-token')
     
     if auth_token:
-        print(auth_token)
         res = BlackListToken(auth_token)
         blacklist_token = BlackListToken(token=auth_token)
         # blacklist_token.save(auth_token)
         db.session.add(auth_token)
         db.session.commit()
 
-        # try:
-        #     blacklist_token.save(auth_token)
-        #     response_object = {
-        #         'status': 'success',
-        #         'message': 'successfully logged out'
-        #     }
-        #     return make_response(jsonify(response_object)), 200
-        # except Exception as e:
-        #     response_object = {
-        #         'status': 'failed from thrown exception',
-        #         'message': str(e)
-        #     }
-        #     return make_response(jsonify(response_object)), 200
     else:
         response_object = {
             'status': 'fail from token',

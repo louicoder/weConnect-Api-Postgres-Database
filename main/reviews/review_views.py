@@ -1,6 +1,6 @@
 from flask import Blueprint, Flask, request, json, jsonify, make_response
 from flasgger import swag_from
-from ..user.user_views import token_required, logged_in_user
+from ..user.user_views import token_required
 import sys
 from flask_paginate import Pagination, get_page_args, get_page_parameter
 from ..app_models import db, Business, Review
@@ -9,7 +9,7 @@ from flask_cors import CORS
 reviewBlueprint = Blueprint('reviews', __name__)
 CORS(reviewBlueprint)
 @reviewBlueprint.route('/api/businesses/<int:business_id>/reviews', methods=['POST'])
-# @swag_from('apidocs/create_review.yml')
+@swag_from('apidocs/create_review.yml')
 @token_required
 def create_review(business_id):
     """Function is responsible fof creating a new review"""
@@ -42,12 +42,12 @@ def create_review(business_id):
 
 # route 127.0.0.1:5000/api/businesses/<business_id>/reviews
 @reviewBlueprint.route('/api/businesses/<int:business_id>/reviews', methods=['GET'])
-# @swag_from('apidocs/retrieve_reviews.yml')
+@swag_from('apidocs/retrieve_reviews.yml')
 @token_required
 def get_all_reviews(business_id):
     
     if request.method == 'GET':
-        limit = request.args.get('limit') or 2 # default is 5 in case limit is not set
+        limit = request.args.get('limit') or 20 # default is 5 in case limit is not set
         page = request.args.get('page') or 1
         limit = int(limit)
         page = int(page)
@@ -79,3 +79,4 @@ def get_all_reviews(business_id):
         return jsonify({'reviews':review_list}), 200
     else:
         return jsonify({'message':'no reviews found for that business id'}), 400
+

@@ -3,7 +3,6 @@ from .test_base_reviews import BaseTestReviews
 from flask import request, url_for, json
 from manage import db
 from run import app
-from main.user.user_views import logged_in_user
 
 class TestReviews(BaseTestReviews):
 
