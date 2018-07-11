@@ -8,12 +8,12 @@ Endpoint retrieving a single business
       type: string
       description: JWT token authorization
       required: true
-    - name: businessId
+    - name: business_id
       in: path
       description: "id of the business to return"
       required: true
-      type: integer
-      format: int64
+      type: string
+      # format: int64
   definitions:
     Business:
       type: object

@@ -51,6 +51,4 @@ class BaseTestReviews(unittest.TestCase):
             self.review= {
                 'review': 'test review for a business'
             }
-
-            self.review_field_missing={}
-            
+            # db.session.close()

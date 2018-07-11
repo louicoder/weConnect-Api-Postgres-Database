@@ -71,7 +71,6 @@ Endpoint for creating a new Business
       description: Failed to create business
     401:
       description: Invalid token or User is logged out 
-      description: you are not logged in, please login
     400:
       description: fill in all the fields that is name, location, category and description
       description: business name is missing
@@ -79,7 +78,6 @@ Endpoint for creating a new Business
       description: business category is missing
       description: business description is missing
       description: name of business is too short, should between five and ten characters
-      description: name of business is too long, should between five and ten characters
       description: you are not logged in, please login
       description: business name contains special characters
       description: business was not created, please try again

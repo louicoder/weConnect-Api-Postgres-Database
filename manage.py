@@ -6,16 +6,16 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_sqlalchemy import SQLAlchemy
 import sys
 
-from main.appModels import User
-from main.appModels import Business
-from main.appModels import Review
+from main.app_models import User
+from main.app_models import Business
+from main.app_models import Review
 from run import app
-from main.appModels import db
+from main.app_models import db
 
 
 db.init_app(app)
 
-app.config.from_object(os.environ['APP_SETTINGS'])
+app.config.from_object(os.environ.get('APP_SETTINGS'))
 
 migrate = Migrate(app, db)
 manager = Manager(app)

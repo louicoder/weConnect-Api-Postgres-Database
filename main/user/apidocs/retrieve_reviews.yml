@@ -12,7 +12,7 @@ parameters:
     type: string
     description: JWT token authorization
     required: true
-  - name: businessId
+  - name: business_id
     in: path
     description: "ID of business to return"
     required: true

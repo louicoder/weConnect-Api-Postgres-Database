@@ -1,5 +1,5 @@
 from main import app
-from main.appModels import db
+from main.app_models import db
 
 db.init_app(app)
 with app.app_context():

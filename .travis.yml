@@ -3,11 +3,17 @@ language: python
 python: 
   - 3.6.5
 
+# before_install:
+#   - sudo pip uninstall -y pyJWT
+#   - sudo pip uninstall -y JWT
+
+
 install: 
-  - pip install -r requirements.txt
+  - pip install --user -r requirements.txt
   - pip install coveralls
   - pip install unittest2
-  - pip install jwt
+  - pip install Flask-JWT
+  - pip install pyJWT
 
 env: 
   - COVERAGE_FILE=".coverage" FLASK_APP="run.py" SECRET="veryHardtoGEtPassword" APP_SETTINGS="config.TestingConfig" DATABASE_URL="postgres://postgres@localhost/weconnect"
@@ -23,7 +29,8 @@ before_script:
 #script to run tests
 script:
   # - nose2 tests --with-coverage 
-  - nosetests --with-coverage --cover-tests  --cover-package=tests
+  #- nosetests --with-coverage --cover-tests  --cover-package=tests
+  - nose2 --with-coverage
   - coverage report
 
 #update coveralls on cchanges

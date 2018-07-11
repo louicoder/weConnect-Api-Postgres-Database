@@ -1,13 +1,13 @@
 
 import flask
 from flask import Flask, redirect
-from .user.userViews import userBlueprint
-from .business.businessViews import businessBlueprint
+from .user.user_views import userBlueprint
+from .business.business_views import businessBlueprint
 from .reviews.review_views import reviewBlueprint
 from flasgger import Swagger
 from flasgger import swag_from
-from .appModels import db, Business, User, Review
-
+from .app_models import db, Business, User, Review
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 app.register_blueprint(userBlueprint)
@@ -28,6 +28,8 @@ template = {
 
 #swagger docs instanciation
 swagger = Swagger(app, template=template)
+# CORS(app, resources={r"/api/*": {"origins": "*","Access-Control-Allow-Origin":"*","Access-Control-Request-Headers":"*"}})
+CORS(app)
 
 @app.route('/')
 def index():
