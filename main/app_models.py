@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 import jwt
 # from .user.user_views import SECRET_KEY
 
-db= SQLAlchemy()
+db = SQLAlchemy()
 
 ################ USER MODEL ####################
 class User(db.Model):
