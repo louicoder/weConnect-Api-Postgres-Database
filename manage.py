@@ -15,7 +15,7 @@ from main.app_models import db
 
 db.init_app(app)
 
-app.config.from_object(os.environ['APP_SETTINGS'])
+app.config.from_object(os.environ.get('APP_SETTINGS'))
 
 migrate = Migrate(app, db)
 manager = Manager(app)
