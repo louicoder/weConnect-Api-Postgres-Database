@@ -10,21 +10,21 @@ class Config(object):
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
     # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://postgres@localhost/weconnectdb')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 class TestingConfig(Config):
     TESTING = True
     DEBUG=True
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 class ProductionConfig(Config):
     DEBUG = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     
 config = {
     'development': DevelopmentConfig,
