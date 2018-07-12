@@ -6,8 +6,6 @@ class Config(object):
     DEBUG = False
     TESTING = False
     SECRET_KEY = 'veryHardtoGEtPassword' or os.environ.get('SECRET_KEY')
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
     # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://postgres@localhost/weconnectdb')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
