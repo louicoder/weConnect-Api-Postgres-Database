@@ -62,8 +62,11 @@ def create_business():
     if Business.query.filter_by(business_name=business_name).count() == 0:
         business = Business(user_id, business_name, location, category, description)
         db.session.add(business)
-        
-        if business:
+        created = db.session.commit()
+        print(created)
+
+        exists = Business.query.filter_by(business_name=business_name)
+        if exists.count() > 0:
             return jsonify({'message':'business has been successfully created'}), 201
         else:
             return jsonify({'message':'business was not created, please try again'}), 400
