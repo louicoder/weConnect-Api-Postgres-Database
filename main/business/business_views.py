@@ -62,8 +62,11 @@ def create_business():
     if Business.query.filter_by(business_name=business_name).count() == 0:
         business = Business(user_id, business_name, location, category, description)
         db.session.add(business)
-        
-        if business:
+        created = db.session.commit()
+        print(created)
+
+        exists = Business.query.filter_by(business_name=business_name)
+        if exists.count() > 0:
             return jsonify({'message':'business has been successfully created'}), 201
         else:
             return jsonify({'message':'business was not created, please try again'}), 400
@@ -218,7 +221,7 @@ def search_business():
         return jsonify({'message':'Business name is empty'}), 400
 
     if request.method == 'GET':
-        limit = request.args.get('limit') or 100 # default is 5 in case limit is not set
+        limit = request.args.get('limit') or 4 # default is 5 in case limit is not set
         page = request.args.get('page') or 1
         limit = int(limit)
         page = int(page)
@@ -228,7 +231,9 @@ def search_business():
             results = Business.query.filter(Business.business_name.ilike('%' + business_name + '%'))
             results = results.filter_by(category=filter_value)
             # .filter(Business.business_name.ilike('%' + business_name + '%'))
-            businesses = results.paginate(per_page=limit, page=page, error_out=False)
+            # businesses = results.paginate(per_page=limit, page=page, error_out=False)
+            businesses = results.paginate(per_page=4, page=page, error_out=False)
+            
             # business_list =[]
             for business in businesses.items:
                 business_obj = {
@@ -250,7 +255,9 @@ def search_business():
             results = Business.query.filter(Business.business_name.ilike('%' + business_name + '%'))
             results = results.filter_by(location=filter_value)
             # .filter(Business.business_name.ilike('%' + business_name + '%'))
-            businesses = results.paginate(per_page=limit, page=page, error_out=False)
+            # businesses = results.paginate(per_page=limit, page=page, error_out=False)
+            businesses = results.paginate(per_page=4, page=page, error_out=False)
+            
             # business_list =[]
             for business in businesses.items:
                 business_obj = {
@@ -268,8 +275,10 @@ def search_business():
                 }
                 business_list.append(business_obj)
             
-    elif filter_type == "" and filter_value == "" or (not filter_value and not filter_type):
-        businesses = Business.query.filter(Business.business_name.ilike('%' + business_name + '%')).paginate(per_page=limit, page=page, error_out=False)
+    elif filter_type == "" and filter_value == "":
+        # businesses = Business.query.filter(Business.business_name.ilike('%' + business_name + '%')).paginate(per_page=limit, page=page, error_out=False)
+        businesses = Business.query.filter(Business.business_name.ilike('%' + business_name + '%')).paginate(per_page=4, page=page, error_out=False)
+        
         business_list =[]
         for business in businesses.items:
             business_obj = {

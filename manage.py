@@ -11,11 +11,19 @@ from main.app_models import Business
 from main.app_models import Review
 from run import app
 from main.app_models import db
+from config import config
 
 
 db.init_app(app)
 
-app.config.from_object(os.environ.get('APP_SETTINGS'))
+if(os.environ.get('APP_SETTINGS')=='testing'):
+    app.config.from_object(config['testing'])
+elif(os.environ.get('APP_SETTINGS')=='production'):
+    app.config.from_object(config['production'])
+else:
+    app.config.from_object(config['development'])
+# app.config['APP_SETTINGS'] =  os.environ.get('APP_SETTINGS'))
+# print(app.config)
 
 migrate = Migrate(app, db)
 manager = Manager(app)

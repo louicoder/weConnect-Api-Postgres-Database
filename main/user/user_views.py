@@ -123,7 +123,7 @@ def login():
         
         if check_password_hash(user.password, pd):
             # create the token
-            token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(days=1), 'id':user.id, 'username':user.username}, SECRET_KEY)
+            token = jwt.encode({'user':un, 'exp':datetime.datetime.utcnow() + datetime.timedelta(hours=24), 'id':user.id, 'username':user.username}, SECRET_KEY)
             return jsonify({'token':token.decode('UTF-8'), 'message':'successfully logged in'}), 200
         
     return make_response(jsonify({'message':'wrong username or password'})), 400

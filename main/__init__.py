@@ -25,6 +25,8 @@ template = {
     "schemes": ["http", "https"],
     "specs_route":"/apidocs/"
 }
+# initialise app
+db.init_app(app)
 
 #swagger docs instanciation
 swagger = Swagger(app, template=template)
