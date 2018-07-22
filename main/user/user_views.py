@@ -88,10 +88,8 @@ def create_user():
     if User.query.filter_by(username=username).count() == 0:
         user = User(username=username, password=generate_password_hash(password), email=email)
         if user:
-            print('we are going in...')
             db.session.add(user)
             db.session.commit()
-            print('we are here..')
             return jsonify({'message':'user successfully registered'}), 201 #created
     else:
         return jsonify({'message':'user already exists'}), 400 #bad request
