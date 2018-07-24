@@ -1,24 +1,28 @@
 from flask import Blueprint, Flask, request, json, jsonify, make_response
 import jwt
+import smtplib
 import datetime
+from dateutil import relativedelta
 import sys, os
+import random, string
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
 from functools import wraps
-from ..app_models import db, User, BlackListToken
+from ..app_models import db, User, BlackListToken, ResetPassword
 import re
 from flask_cors import CORS
+from . import BASE_URL, EMAIL_BASE_URL
+
 
 userBlueprint = Blueprint('user', __name__)
 CORS(userBlueprint)
 SECRET_KEY = 'password reversed drowssap' # secret key
-# logged_in_user ={}
 
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         """checks whether token is valid or not."""
-        token = None
+        token = ""
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
         else:
@@ -28,7 +32,6 @@ def token_required(f):
             return jsonify({'message ':'Unauthorized access token is missing'}), 401
         try:
             data = jwt.decode(token,SECRET_KEY)
-            current_user = User.query.get(int(data['id']))
         except:
             return jsonify({'message', 'Token is invalid'}), 401
         return f(*args, **kwargs)
@@ -101,10 +104,6 @@ def login():
     jsn = request.data
     data = json.loads(jsn)
     
-    # if logged_in_user:
-    #     # username = logged_in_user['username']
-    #     return jsonify({'message':'you are already logged in'}), 400
-
     if data:
         if 'username' not in data.keys():
             return jsonify({"message":"username missing"}), 400
@@ -145,9 +144,90 @@ def reset_password():
         user = User.query.get(user_id)
         user.password= generate_password_hash(new_password)
         db.session.add(user)
+        db.session.commit()
         return jsonify({'message':'user password has been successfully reset'})
     else:
         return jsonify({'message': 'Could not reset password because of missing fields'})
+
+
+@userBlueprint.route('/api/auth/reset-password-email/<string:username>', methods=['PUT'])
+def update_password_email(username):
+    jsn = request.data
+    data = json.loads(jsn)
+    new_password = generate_password_hash(data['password'])
+    secret_code = data['secret_code']
+    username = username
+    # query database to check whether user exists
+    user_object = User.query.filter_by(username=username).first()
+
+    # if user exists
+    if user_object:
+        reset_password_object = ResetPassword.query.filter_by(username=username).first()
+        
+        # check if secret code supplied by user is same as one in the database
+        if reset_password_object and reset_password_object.secret_code == secret_code:
+            difference = relativedelta.relativedelta(datetime.datetime.now(), reset_password_object.reset_time)
+            # check if the minutes are not greater than 30 minutes and less than one hour
+            if difference.minutes <= 30 and difference.hours < 1:
+                user_object.password = new_password
+                db.session.add(user_object)
+                db.session.commit()
+                return jsonify({'message':'password successfully updated'}), 200 #ok ,updated
+            else:
+                return jsonify({'message':'The secret code has already expired, Try again'}), 400
+        else:
+            return jsonify({'message':'The secret code you supplied does not match with the one in the records'}), 400
+    else:
+        return jsonify({'message':'no record for '+username+' was not found, nothing updated'}), 404 # not found
+
+    return jsonify({'message':'password for '+username+' was not updated, try again'}), 400  
+
+
+@userBlueprint.route('/api/auth/reset-password-email/<string:username>', methods=['POST'])
+def reset_password_email(username):
+    # query User table to check whether user exists.
+    user_object = User.query.filter_by(username=username).first()
+    secret_code = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(10)])
+    
+    # if the user exists
+    if user_object:
+        user_email = user_object.email #set email
+        username = username #set username
+    else:
+        return jsonify({'message': username+' does not exist in the records'}), 400
+
+    try:
+        # instantiate gmail server instance
+        server = smtplib.SMTP('smtp.gmail.com:587')
+        server.ehlo()
+        # start secure connection.
+        server.starttls()
+        server.login('musanje2010@gmail.com', os.getenv('PASSWORD'))
+        # format the email to include subject, link and secret code
+        link = "Click the link below to reset your password  \n "+EMAIL_BASE_URL+"/"+"reset-password-email/"+username+" \n\n Your secret code is:\n"+secret_code
+        message = 'Subject: {}\n\n{}'.format('Password reset', link)
+        # send email
+        server.sendmail('musanje2010@gmail.com', user_email, message)
+        server.quit() # close server connection.
+
+        # query database to check whether user with that username exists
+        obj = ResetPassword.query.filter_by(username=username).first()
+        if obj:          
+            # set reset_time to now
+            obj.reset_time = datetime.datetime.now()
+            obj.secret_code = secret_code
+            # save the new time
+            db.session.add(obj)
+            db.session.commit()
+            
+        else:
+            # this block covers instance where user has no entry in the reset_password table.
+            reset_password_object = ResetPassword(username, secret_code)
+            db.session.add(reset_password_object)
+            db.session.commit()        
+        return jsonify({'message':"Email successfully sent to "+ user_email})
+    except:
+        return jsonify({'message':'Email failed to send'})
 
 
 @userBlueprint.route('/api/auth/logout', methods=['POST'])
@@ -157,7 +237,7 @@ def logout():
     auth_token = request.headers.get('x-access-token')
     
     if auth_token:
-        res = BlackListToken(auth_token)
+        # res = BlackListToken(auth_token)
         blacklist_token = BlackListToken(token=auth_token)
         # blacklist_token.save(auth_token)
         db.session.add(auth_token)

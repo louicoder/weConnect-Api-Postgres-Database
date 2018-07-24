@@ -21,7 +21,6 @@ CORS(businessBlueprint)
 def create_business():
     token = request.headers.get('x-access-token')
     payload = jwt.decode(token, SECRET_KEY)
-    # print(payload['id'])
     jsn = request.data
     data = json.loads(jsn)
     specialChars = ['@', '#', '$', '%', '^', '&', '*', '!', '/', '?', '-', '_']
@@ -63,7 +62,6 @@ def create_business():
         business = Business(user_id, business_name, location, category, description)
         db.session.add(business)
         created = db.session.commit()
-        print(created)
 
         exists = Business.query.filter_by(business_name=business_name)
         if exists.count() > 0:
@@ -194,7 +192,6 @@ def delete_business(business_id):
     biz = Business.query.get(int(business_id))
 
     user_id = payload['id']
-    print(user_id)
     if biz:
         if str(user_id) == str(biz.user_id):
             db.session.delete(biz)
@@ -250,7 +247,6 @@ def search_business():
                     'total':businesses.total
                 }
                 business_list.append(business_obj)
-            # print(results)
         elif filter_type == 'location':
             results = Business.query.filter(Business.business_name.ilike('%' + business_name + '%'))
             results = results.filter_by(location=filter_value)
@@ -356,7 +352,6 @@ def filter_business():
             business_list.append(business_obj)
     else:
         return jsonify({'message':'invalid or unknown filter type or filter value passed in query url'}), 400
-    # print(business_list)
     if len(business_list) > 0:
         return jsonify({"message":business_list}), 200
     else:

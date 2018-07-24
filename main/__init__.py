@@ -8,7 +8,6 @@ from flasgger import Swagger
 from flasgger import swag_from
 from .app_models import db, Business, User, Review
 from flask_cors import CORS, cross_origin
-
 app = Flask(__name__)
 app.register_blueprint(userBlueprint)
 app.register_blueprint(businessBlueprint)
@@ -27,6 +26,7 @@ template = {
 }
 # initialise app
 db.init_app(app)
+
 
 #swagger docs instanciation
 swagger = Swagger(app, template=template)

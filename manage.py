@@ -6,9 +6,7 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_sqlalchemy import SQLAlchemy
 import sys
 
-from main.app_models import User
-from main.app_models import Business
-from main.app_models import Review
+from main.app_models import User, Business, Review
 from run import app
 from main.app_models import db
 from config import config
@@ -22,8 +20,6 @@ elif(os.environ.get('APP_SETTINGS')=='production'):
     app.config.from_object(config['production'])
 else:
     app.config.from_object(config['development'])
-# app.config['APP_SETTINGS'] =  os.environ.get('APP_SETTINGS'))
-# print(app.config)
 
 migrate = Migrate(app, db)
 manager = Manager(app)
