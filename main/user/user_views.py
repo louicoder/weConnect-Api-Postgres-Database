@@ -11,7 +11,7 @@ from functools import wraps
 from ..app_models import db, User, BlackListToken, ResetPassword
 import re
 from flask_cors import CORS
-from . import BASE_URL, EMAIL_BASE_URL
+from . import EMAIL_BASE_URL
 
 
 userBlueprint = Blueprint('user', __name__)
@@ -206,6 +206,7 @@ def reset_password_email(username):
         # format the email to include subject, link and secret code
         link = "Click the link below to reset your password  \n "+ EMAIL_BASE_URL +"/"+"reset-password-email/"+ username +" \n\n Your secret code is:\n"+ secret_code
 
+        print(link)
         message = 'Subject: {}\n\n{}'.format('Password reset', link)
         # send email
         server.sendmail('musanje2010@gmail.com', user_email, message)
