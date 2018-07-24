@@ -6,10 +6,9 @@ class Config(object):
     DEBUG = False
     TESTING = False
     SECRET_KEY = 'veryHardtoGEtPassword' or os.environ.get('SECRET_KEY')
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://postgres@localhost/weconnectdb')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    # SQLALCHEMY_DATABASE_URI = "postgres://olcnxvexiyysit:b3c5c2b84737b398a8c77e4dd7caca9466f6defb217c840755024cae5d151e3b@ec2-23-21-236-249.compute-1.amazonaws.com:5432/dbp41ulsu8stu7"
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or "postgres://olcnxvexiyysit:b3c5c2b84737b398a8c77e4dd7caca9466f6defb217c840755024cae5d151e3b@ec2-23-21-236-249.compute-1.amazonaws.com:5432/dbp41ulsu8stu7"
 
     
 class DevelopmentConfig(Config):
