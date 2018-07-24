@@ -204,9 +204,8 @@ def reset_password_email(username):
         server.starttls()
         server.login('musanje2010@gmail.com', os.getenv('PASSWORD'))
         # format the email to include subject, link and secret code
-        link = "Click the link below to reset your password  \n "+EMAIL_BASE_URL+"/"+"reset-password-email/"+username+" \n\n Your secret code is:\n"+secret_code
+        link = "Click the link below to reset your password  \n "+ EMAIL_BASE_URL +"/"+"reset-password-email/"+ username +" \n\n Your secret code is:\n"+ secret_code
 
-        print(link)
         message = 'Subject: {}\n\n{}'.format('Password reset', link)
         # send email
         server.sendmail('musanje2010@gmail.com', user_email, message)
