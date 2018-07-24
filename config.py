@@ -13,17 +13,17 @@ class Config(object):
 
     
 class DevelopmentConfig(Config):
-    DEVELOPMENT = True
+    # DEVELOPMENT = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 
 class TestingConfig(Config):
-    TESTING = True
+    # TESTING = True
     DEBUG=True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 
 class ProductionConfig(Config):
-    PRODUCTION = True
+    # PRODUCTION = True
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     
