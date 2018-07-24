@@ -13,7 +13,6 @@ class User(db.Model):
     password = db.Column(db.String(256), nullable=False)
     businesses = db.relationship('Business', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     reviews = db.relationship('Review', backref='user', lazy='dynamic', cascade='all, delete-orphan')
-    password_reset_time = db.Column(db.DateTime, nullable=True)
 
 
     def __init__(self, username, email, password):
