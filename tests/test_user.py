@@ -59,11 +59,11 @@ class Testuser(BaseTestUser):
         self.assertTrue(result['message'] == "password is missing")
         self.assertEqual(400, response.status_code)
 
-    def test_exists_registration(self):
+    def test_username_exists_registration(self):
         self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
         response = self.client.post('/api/auth/register', data=json.dumps(self.user), content_type='application/json')
         result = json.loads(response.data.decode())
-        self.assertEqual("user already exists", result['message'])
+        self.assertEqual("username already exists", result['message'])
         self.assertEqual(400, response.status_code)
 
     def test_invalid_email(self):

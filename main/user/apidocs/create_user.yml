@@ -49,7 +49,7 @@ Endpoint for creating a new user
           "message":"user has been successfully registered"
         }]
     400:      
-      description: user already exists
+      description: username or email already exists
       description: username contains special characters
       description: username should be five characters and above
       description: password should be five characters and above

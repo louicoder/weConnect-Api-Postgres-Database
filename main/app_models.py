@@ -13,6 +13,7 @@ class User(db.Model):
     password = db.Column(db.String(256), nullable=False)
     businesses = db.relationship('Business', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     reviews = db.relationship('Review', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    profile_photo = db.Column(db.String(700), nullable=True)
 
 
     def __init__(self, username, email, password):

@@ -1,9 +1,9 @@
-from flask import Blueprint, Flask, request, json, jsonify, make_response
+from flask import Blueprint, Flask, request, json, jsonify, make_response, send_from_directory
 import jwt
 import smtplib
 import datetime
-from dateutil import relativedelta
 import sys, os
+from dateutil import relativedelta
 import random, string
 from werkzeug.security import generate_password_hash, check_password_hash
 from flasgger import swag_from
@@ -12,11 +12,16 @@ from ..app_models import db, User, BlackListToken, ResetPassword
 import re
 from flask_cors import CORS
 from . import EMAIL_BASE_URL
-
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 
 userBlueprint = Blueprint('user', __name__)
 CORS(userBlueprint)
 SECRET_KEY = 'password reversed drowssap' # secret key
+
+# set images upload directory
+# photos = UploadSet('photos', IMAGES)
+# app.config['UPLOADED_PHOTOS_DEST'] = '../images'
+# configure_uploads(app, photos)
 
 def token_required(f):
     @wraps(f)
@@ -81,20 +86,20 @@ def create_user():
         if len(data['password']) < 5:
             return jsonify({'message':'password too short, should be between five and ten characters'}), 400 #bad request
 
-        # if len(data['password']) > 10:
-        #     return jsonify({'message':'password too long, should be between five and ten characters'}), 400 #bad request
-
     username = data['username']
     password = data['password']
     email = data['email']
        
     if User.query.filter_by(username=username).count() == 0:
-        user = User(username=username, password=generate_password_hash(password), email=email)
-        db.session.add(user)
-        db.session.commit()
-        return jsonify({'message':'user successfully registered'}), 201 #created
+        if User.query.filter_by(email=email).count() == 0:
+            user = User(username=username, password=generate_password_hash(password), email=email)
+            db.session.add(user)
+            db.session.commit()
+            return jsonify({'message':'user successfully registered'}), 201 #created
+        else:
+            return jsonify({'message':'email already exists'}), 400 #created
     else:
-        return jsonify({'message':'user already exists'}), 400 #bad request
+        return jsonify({'message':'username already exists'}), 400 #bad request
 
 
 @userBlueprint.route('/api/auth/login', methods=['POST'])
@@ -182,32 +187,41 @@ def update_password_email(username):
     return jsonify({'message':'password for '+username+' was not updated, try again'}), 400  
 
 
-@userBlueprint.route('/api/auth/reset-password-email/<string:username>', methods=['POST'])
-def reset_password_email(username):
+@userBlueprint.route('/api/auth/reset-password-email', methods=['POST'])
+def reset_password_email():
+    jsn = request.data
+    data = json.loads(jsn)
     # query User table to check whether user exists.
-    user_object = User.query.filter_by(username=username).first()
+
+    if 'email' not in data.keys():
+        return jsonify({'message':'no email address was provided, try again'}), 400 #bad request
+
+    email = data['email']
+    user_object = User.query.filter_by(email=email).first()
     secret_code = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(10)])
     
+    # print(user_object)
     # if the user exists
     if user_object:
         user_email = user_object.email #set email
-        username = username #set username
+        username = user_object.username #set username
     else:
-        return jsonify({'message': username+' does not exist in the records'}), 400
+        return jsonify({'message': email+' does not exist in the records'}), 400
 
     try:
-        # instantiate gmail server instance
+        # create instance of the gmail server
         server = smtplib.SMTP('smtp.gmail.com:587')
         server.ehlo()
         # start secure connection.
         server.starttls()
         server.login('musanje2010@gmail.com', os.getenv('PASSWORD'))
         # format the email to include subject, link and secret code
-        link = "Click the link below to reset your password  \n "+ EMAIL_BASE_URL +"/"+"reset-password-email/"+ username +" \n\n Your secret code is:\n"+ secret_code
+        link = " Click the link below to reset your password  \n "+EMAIL_BASE_URL +"/"+"reset-password-email/"+ username +" \n\n Your secret code is:\n"+ secret_code
 
         print(link)
         message = 'Subject: {}\n\n{}'.format('Password reset', link)
-        # send email
+
+        # send email, user_email is the email the message is sent to, message is the preformatted text
         server.sendmail('musanje2010@gmail.com', user_email, message)
         server.quit() # close server connection.
 
@@ -230,6 +244,37 @@ def reset_password_email(username):
     except:
         return jsonify({'message':'Email failed to send'})
 
+@userBlueprint.route('/api/auth/photo/<username>', methods=['POST'])
+def set_profile_photo(username):
+    jsn = request.data
+    data = json.loads(jsn)
+    username = username
+    
+    user_object = User.query.filter_by(username=username).first()
+
+    if not user_object:
+        return jsonify('No profile image found for '+ username), 400
+
+    if data['image_url'] == '':
+        return jsonify('No image url was passed for '+ username), 400 #bad request
+
+    url = data['image_url']
+    user_object.profile_photo = url
+    db.session.add(user_object)
+    db.session.commit()
+    return jsonify({'message':'successfully updated profile photo for '+ username}), 200 #ok
+
+@userBlueprint.route('/api/auth/photo/<username>', methods=['GET'])
+def get_profile_photo(username):
+    username = username
+    user_object = User.query.filter_by(username=username).first()
+
+    if not user_object:
+        return jsonify('No profile image found for '+ username), 404
+
+    url = user_object.profile_photo
+    return jsonify({'message':url}), 200 #ok
+
 
 @userBlueprint.route('/api/auth/logout', methods=['POST'])
 @token_required
@@ -250,3 +295,4 @@ def logout():
             'message': 'Provide a valid auth token.'
         }
         return make_response(jsonify(response_object)), 403
+

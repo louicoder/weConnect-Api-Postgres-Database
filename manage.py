@@ -10,9 +10,15 @@ from main.app_models import User, Business, Review
 from run import app
 from main.app_models import db
 from config import config
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 
 
 db.init_app(app)
+
+# set the image upload directory
+photos = UploadSet('photos', IMAGES)
+app.config['UPLOADED_PHOTOS_DEST'] = '/images'
+configure_uploads(app, photos)
 
 if(os.environ.get('APP_SETTINGS')=='testing'):
     app.config.from_object(config['testing'])

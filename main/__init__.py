@@ -8,10 +8,19 @@ from flasgger import Swagger
 from flasgger import swag_from
 from .app_models import db, Business, User, Review
 from flask_cors import CORS, cross_origin
-app = Flask(__name__)
+
+from flask_uploads import UploadSet, configure_uploads, IMAGES
+
+
+app = Flask(__name__,static_url_path='/images')
 app.register_blueprint(userBlueprint)
 app.register_blueprint(businessBlueprint)
 app.register_blueprint(reviewBlueprint)
+
+# URL for connecting to the application. first is localhost, second is for connecting to heroku
+# BASE_URL = 'http://127.0.0.1:5000' # for local host
+
+# BASE_URL = 'https://weconnect-api-app.herokuapp.com' #for heroku application
 
 #create the swagger template
 template = {
@@ -25,12 +34,11 @@ template = {
     "specs_route":"/apidocs/"
 }
 # initialise app
-db.init_app(app)
+# db.init_app(app)
 
 
 #swagger docs instanciation
 swagger = Swagger(app, template=template)
-# CORS(app, resources={r"/api/*": {"origins": "*","Access-Control-Allow-Origin":"*","Access-Control-Request-Headers":"*"}})
 CORS(app)
 
 @app.route('/')
