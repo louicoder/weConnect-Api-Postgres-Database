@@ -44,7 +44,7 @@ plotly==2.6.0
 psycopg2==2.7.4
 pyasn1==0.4.2
 pycparser==2.18
-PyJWT==1.6.4
+PyJWT==2.4.0
 pylint==1.9.1
 python-dateutil==2.7.3
 python-editor==1.0.3
